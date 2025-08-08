@@ -52,7 +52,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             href="/"
             className="flex items-center gap-2 text-xl font-semibold font-headline"
           >
-            <BrainCircuit className="w-8 h-8 text-primary" />
+            <BrainCircuit className="w-8 h-8 text-accent" />
             <span>CareerAI</span>
           </Link>
         </SidebarHeader>

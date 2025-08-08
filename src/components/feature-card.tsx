@@ -24,8 +24,8 @@ export function FeatureCard({
     <Link href={href}>
       <Card className="h-full transition-all hover:shadow-lg hover:-translate-y-1">
         <CardHeader className="flex flex-row items-start gap-4">
-          <div className="bg-primary/10 p-3 rounded-lg">
-            <Icon className="w-6 h-6 text-primary" />
+          <div className="bg-accent/10 p-3 rounded-lg">
+            <Icon className="w-6 h-6 text-accent" />
           </div>
           <div className="flex-1">
             <CardTitle className="font-headline text-lg">{title}</CardTitle>
