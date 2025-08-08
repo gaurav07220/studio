@@ -4,6 +4,7 @@
 import { useState, useTransition, useRef, useEffect } from "react";
 import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, AlertCircle, FileText } from "lucide-react";
 import { conductInterview } from "@/ai/flows/ai-interviewer";
+import { textToSpeech } from "@/ai/flows/text-to-speech";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -23,6 +24,7 @@ import { Input } from "@/components/ui/input";
 interface Message {
   role: "user" | "assistant";
   content: string;
+  audioUrl?: string;
 }
 
 const INTERVIEW_COMPLETE_SIGNAL = "INTERVIEW_COMPLETE";
@@ -38,6 +40,9 @@ export default function AiInterviewerPage() {
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
   useEffect(() => {
     if (scrollAreaRef.current) {
         const viewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
@@ -46,6 +51,75 @@ export default function AiInterviewerPage() {
         }
     }
   }, [messages, report]);
+  
+  const handleStartRecording = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast({
+        variant: 'destructive',
+        title: 'Browser Not Supported',
+        description: 'Your browser does not support voice recognition.',
+      });
+      return;
+    }
+
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = true;
+    recognitionRef.current.lang = 'en-US';
+
+    recognitionRef.current.onstart = () => {
+      setIsRecording(true);
+    };
+
+    recognitionRef.current.onend = () => {
+      setIsRecording(false);
+      if (input.trim()) {
+        handleSubmitMessage();
+      }
+    };
+    
+    recognitionRef.current.onresult = (event: any) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+      if (finalTranscript) {
+         setInput(prev => prev + finalTranscript + ' ');
+      }
+    };
+
+    recognitionRef.current.onerror = (event: any) => {
+      toast({
+        variant: 'destructive',
+        title: 'Voice Recognition Error',
+        description: event.error,
+      });
+      setIsRecording(false);
+    };
+
+    recognitionRef.current.start();
+  };
+
+  const handleStopRecording = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+  };
+
+  const playAudio = (url: string) => {
+    const audio = new Audio(url);
+    audio.play();
+  };
+
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role === 'assistant' && lastMessage.audioUrl) {
+      playAudio(lastMessage.audioUrl);
+    }
+  }, [messages]);
 
   const handleStartInterview = () => {
     if (!jobDescription.trim()) {
@@ -60,8 +134,6 @@ export default function AiInterviewerPage() {
     setMessages([]);
     setReport("");
     setInterviewFinished(false);
-
-    const firstMessage: Message = { role: "user", content: jobDescription };
     
     startTransition(async () => {
         try {
@@ -69,7 +141,8 @@ export default function AiInterviewerPage() {
                 jobDescription,
                 history: []
             });
-            const assistantMessage: Message = { role: "assistant", content: res.response };
+            const audioRes = await textToSpeech(res.response);
+            const assistantMessage: Message = { role: "assistant", content: res.response, audioUrl: audioRes.media };
             setMessages([assistantMessage]);
         } catch(e) {
             toast({
@@ -82,8 +155,8 @@ export default function AiInterviewerPage() {
     });
   };
 
-  const handleSubmitMessage = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmitMessage = (e?: React.FormEvent) => {
+    e?.preventDefault();
     if (!input.trim() || isPending) return;
 
     const userMessage: Message = { role: "user", content: input };
@@ -103,9 +176,12 @@ export default function AiInterviewerPage() {
           const feedback = res.response.replace(INTERVIEW_COMPLETE_SIGNAL, "").trim();
           setReport(feedback);
           setInterviewFinished(true);
-          setMessages(prev => [...prev, {role: 'assistant', content: "Thank you for completing the interview. Here is your feedback report."}]);
+          const finalAssistantText = "Thank you for completing the interview. Here is your feedback report.";
+          const audioRes = await textToSpeech(finalAssistantText);
+          setMessages(prev => [...prev, {role: 'assistant', content: finalAssistantText, audioUrl: audioRes.media}]);
         } else {
-          const assistantMessage: Message = { role: "assistant", content: res.response };
+          const audioRes = await textToSpeech(res.response);
+          const assistantMessage: Message = { role: "assistant", content: res.response, audioUrl: audioRes.media };
           setMessages((prev) => [...prev, assistantMessage]);
         }
 
@@ -213,7 +289,7 @@ export default function AiInterviewerPage() {
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Your answer..."
+                  placeholder={isRecording ? "Listening..." : "Your answer..."}
                   disabled={isPending}
                   className="flex-1"
                   autoComplete="off"
@@ -221,6 +297,15 @@ export default function AiInterviewerPage() {
                 <Button type="submit" disabled={isPending || !input.trim()} size="icon">
                   <Send className="h-4 w-4" />
                 </Button>
+                {!isRecording ? (
+                  <Button type="button" onClick={handleStartRecording} disabled={isPending} size="icon">
+                    <Mic className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button type="button" onClick={handleStopRecording} disabled={isPending} size="icon" variant="destructive">
+                    <Square className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button variant="destructive" onClick={handleEndInterview} disabled={isPending} type="button">
                     {isPending ? <Loader2 className="mr-2 animate-spin" /> : <Square className="mr-2" />}
                     End Interview
@@ -253,4 +338,3 @@ export default function AiInterviewerPage() {
     </div>
   );
 }
-
