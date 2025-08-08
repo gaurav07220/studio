@@ -129,7 +129,7 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <div className="hidden md:block">
+          {/* <div className="hidden md:block">
             <Image
               src="https://placehold.co/600x400.png"
               data-ai-hint="career development job search"
@@ -138,7 +138,7 @@ export default function Home() {
               height={400}
               className="rounded-xl shadow-xl"
             />
-          </div>
+          </div> */}
         </div>
       </section>
 
