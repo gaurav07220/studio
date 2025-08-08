@@ -1,7 +1,9 @@
+
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "@/hooks/use-auth";
 import "./globals.css";
 
 const inter = Inter({
@@ -27,8 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <body>
-        <AppShell>{children}</AppShell>
-        <Toaster />
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );
