@@ -1,6 +1,8 @@
+
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Lightbulb, Loader2 } from "lucide-react";
 import { upskillingRecommender, type UpskillingRecommenderOutput } from "@/ai/flows/upskilling-recommender";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,14 @@ export default function UpskillingRecommenderPage() {
   const [preferredPlatforms, setPreferredPlatforms] = useState("");
   const [result, setResult] = useState<UpskillingRecommenderOutput | null>(null);
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const gaps = searchParams.get("skillGaps");
+    if (gaps) {
+      setSkillGaps(gaps);
+    }
+  }, [searchParams]);
 
   const handleSubmit = () => {
     if (!skillGaps || !careerGoals) {
@@ -133,7 +143,7 @@ export default function UpskillingRecommenderPage() {
             <Card>
                 <CardHeader>
                     <CardTitle><div className="h-6 bg-muted rounded w-1/3 animate-pulse"></div></CardTitle>
-                </CardHeader>
+                </Header>
                 <CardContent className="space-y-2">
                     <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
                     <div className="h-4 bg-muted rounded w-5/6 animate-pulse"></div>

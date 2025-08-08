@@ -1,6 +1,8 @@
+
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { useSearchParams } from 'next/navigation';
 import { Briefcase, Loader2, AlertTriangle, Lightbulb } from "lucide-react";
 import { jobDescriptionMatcher, type JobDescriptionMatcherOutput } from "@/ai/flows/job-description-matcher";
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,29 @@ export default function JobMatcherPage() {
   const [jobDescriptionText, setJobDescriptionText] = useState("");
   const [result, setResult] = useState<JobDescriptionMatcherOutput | null>(null);
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const resumeDataUri = searchParams.get('resume');
+    if (resumeDataUri) {
+      // The data URI is expected to be in the format 'data:<mimetype>;base64,<encoded_data>'
+      try {
+        const base64Data = resumeDataUri.split(',')[1];
+        const decodedText = atob(base64Data);
+        // This might not be perfect for all file types (like docx), but for text/pdf it can extract readable text.
+        // For a robust solution, a server-side text extraction library would be needed.
+        // For this implementation, we will assume the extracted text is sufficient for the LLM.
+        setResumeText(decodedText);
+      } catch (error) {
+        console.error("Failed to decode resume from data URI", error);
+        toast({
+            variant: "destructive",
+            title: "Failed to load resume",
+            description: "Could not automatically load the resume content."
+        });
+      }
+    }
+  }, [searchParams, toast]);
 
   const handleSubmit = () => {
     if (!resumeText || !jobDescriptionText) {
