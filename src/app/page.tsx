@@ -1,32 +1,24 @@
 
 "use client";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  FileText,
-  Briefcase,
-  Users,
-  Lightbulb,
-  MessageSquare,
-  TrendingUp,
-  ArrowRight,
-  Check,
-  UploadCloud,
-  FileCheck,
-  Send,
-  Zap,
-  LayoutGrid,
-  Wallet,
-} from "lucide-react";
 import { FeatureCard } from "@/components/feature-card";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  ArrowRight,
+  Briefcase,
+  FileCheck,
+  FileText,
+  LayoutGrid,
+  Lightbulb,
+  MessageSquare,
+  Send,
+  TrendingUp,
+  UploadCloud,
+  Users,
+  Wallet,
+  Zap
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 const features = [
   {
@@ -111,7 +103,7 @@ const whyPoints = [
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-12 md:gap-20 pb-12">
+    <div className="flex flex-col gap-12 md:gap-20 pb-12" style={{alignItems:'center'}}>
       {/* Hero Section */}
       <section className="pt-8 md:pt-16">
         <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-10 items-center">
