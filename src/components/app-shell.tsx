@@ -8,13 +8,12 @@ import {
   FileText,
   Home,
   Lightbulb,
-  MessageSquare,
   TrendingUp,
   Users,
   BrainCircuit,
 } from "lucide-react";
+import { CareerCoachWidget } from "@/components/career-coach-widget";
 
-import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -37,7 +36,6 @@ const navItems = [
     label: "Upskilling",
     icon: Lightbulb,
   },
-  { href: "/career-coach", label: "Career Coach", icon: MessageSquare },
   { href: "/job-market", label: "Job Market", icon: TrendingUp },
 ];
 
@@ -87,6 +85,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
         <main className="flex-1 overflow-y-auto">{children}</main>
+        <CareerCoachWidget />
       </SidebarInset>
     </SidebarProvider>
   );
