@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useTransition } from "react";
@@ -9,6 +10,7 @@ import {
   AlertTriangle,
   Lightbulb,
   Sparkles,
+  ClipboardCheck,
 } from "lucide-react";
 
 import {
@@ -29,6 +31,46 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ClassicTemplate, ModernTemplate, CreativeTemplate } from "@/components/resume-template";
+
+const templateData = {
+    name: "John Doe",
+    email: "john.doe@email.com",
+    phone: "123-456-7890",
+    linkedin: "linkedin.com/in/johndoe",
+    summary: "Highly motivated and results-oriented professional with 5+ years of experience in software development. Proven ability to design, develop, and deploy high-quality software solutions. Seeking to leverage my skills in a challenging role.",
+    experience: [
+        {
+            role: "Senior Software Engineer",
+            company: "Tech Solutions Inc.",
+            date: "Jan 2021 - Present",
+            points: [
+                "Led the development of a new microservices-based architecture, improving system scalability by 40%.",
+                "Mentored junior engineers, fostering a culture of knowledge sharing and continuous improvement.",
+                "Reduced API response times by 50% through performance optimization and query tuning.",
+            ],
+        },
+        {
+            role: "Software Engineer",
+            company: "Innovate Corp.",
+            date: "Jun 2018 - Dec 2020",
+            points: [
+                "Developed and maintained features for a large-scale e-commerce platform using React and Node.js.",
+                "Collaborated with cross-functional teams to deliver high-quality products on schedule.",
+            ],
+        },
+    ],
+    education: [
+        {
+            degree: "B.S. in Computer Science",
+            university: "State University",
+            date: "2014 - 2018",
+        },
+    ],
+    skills: ["JavaScript", "React", "Node.js", "Python", "AWS", "Docker", "SQL", "Agile Methodologies"],
+};
+
 
 export default function ResumeAnalyzerPage() {
   const [isPending, startTransition] = useTransition();
@@ -256,6 +298,33 @@ export default function ResumeAnalyzerPage() {
                         ))}
                     </ul>
                 </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><ClipboardCheck /> ATS-Friendly Templates</CardTitle>
+              <CardDescription>
+                Your resume scored {result.atsCompatibilityScore}/100 for ATS compatibility. Consider using one of these standard, parser-friendly templates to improve your score.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="modern">
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="modern">Modern</TabsTrigger>
+                    <TabsTrigger value="classic">Classic</TabsTrigger>
+                    <TabsTrigger value="creative">Creative</TabsTrigger>
+                </TabsList>
+                <TabsContent value="modern" className="mt-4">
+                    <ModernTemplate data={templateData} />
+                </TabsContent>
+                <TabsContent value="classic" className="mt-4">
+                    <ClassicTemplate data={templateData} />
+                </TabsContent>
+                <TabsContent value="creative" className="mt-4">
+                    <CreativeTemplate data={templateData} />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
