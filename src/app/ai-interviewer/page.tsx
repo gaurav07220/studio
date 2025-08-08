@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
-import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, AlertCircle, FileText } from "lucide-react";
+import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText } from "lucide-react";
 import { conductInterview } from "@/ai/flows/ai-interviewer";
 import { textToSpeech } from "@/ai/flows/text-to-speech";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { InterviewReport } from "@/components/interview-report";
+
 
 interface Message {
   role: "user" | "assistant";
@@ -329,12 +331,12 @@ export default function AiInterviewerPage() {
             <CardDescription>Your performance feedback and suggestions for improvement.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm max-w-none whitespace-pre-wrap rounded-md bg-muted p-4">
-              {report}
-            </div>
+            <InterviewReport markdown={report} />
           </CardContent>
         </Card>
       )}
     </div>
   );
 }
+
+    
