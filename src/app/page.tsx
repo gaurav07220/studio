@@ -140,14 +140,10 @@ export default function Home() {
           <div className="hidden md:block">
           <svg
               viewBox="0 0 600 400"
-              className="rounded-xl w-full h-auto"
+              className="w-full h-auto"
               aria-label="An animated illustration of gears turning, representing the CareerAI platform at work."
             >
               <defs>
-                <linearGradient id="grad-bg" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: 'hsl(var(--background))' }} />
-                  <stop offset="100%" style={{ stopColor: 'hsl(var(--muted))' }} />
-                </linearGradient>
                 <style>
                   {`
                     @keyframes rotate {
@@ -176,7 +172,6 @@ export default function Home() {
                   `}
                 </style>
               </defs>
-              <rect width="600" height="400" rx="12" fill="url(#grad-bg)" />
               
               <g id="gears" opacity="0.1">
                 <path className="gear" fill="hsl(var(--primary))" d="M256,218.8c-2.4-3-5.5-5.3-9-6.9c-4.2-2-8.8-3-13.5-2.8c-4.7,0.2-9.3,1.5-13.4,3.8c-4.1,2.3-7.5,5.5-10.1,9.3l-2.4,3.6c-1.3,2-2.9,3.8-4.8,5.3c-3.7,3-8.2,4.8-12.8,4.8c-4.7,0-9.1-1.8-12.8-4.8c-1.9-1.5-3.5-3.3-4.8-5.3l-2.4-3.6c-2.6-3.8-6-7-10.1-9.3c-4.1-2.3-8.7-3.6-13.4-3.8c-4.7-0.2-9.3,0.8-13.5,2.8c-3.5,1.6-6.6,3.9-9,6.9l-2.4,3.6c-1.3,2-2.9,3.8-4.8,5.3c-3.7,3-8.2,4.8-12.8,4.8c-4.7,0-9.1-1.8-12.8-4.8c-1.9-1.5-3.5-3.3-4.8-5.3l-2.4-3.6c-2.6-3.8-6-7-10.1-9.3c-4.1-2.3-8.7-3.6-13.4-3.8c-4.7-0.2-9.3,0.8-13.5,2.8c-3.5,1.6-6.6,3.9-9,6.9" />
