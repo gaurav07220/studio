@@ -40,14 +40,19 @@ const interviewPrompt = ai.definePrompt({
   1.  Ask relevant questions based on the job description, one at a time. Cover technical skills, behavioral questions, and past experience.
   2.  After the user provides an answer, ask the next logical question. Keep the conversation flowing naturally.
   3.  If the user asks to end the interview OR you feel you have asked enough questions (around 5-7 questions), you MUST end the interview.
-  4.  To end the interview, you MUST respond with the exact phrase "INTERVIEW_COMPLETE" followed by a detailed performance report.
+  4.  To end the interview, you MUST respond with the exact phrase "INTERVIEW_COMPLETE" followed by a detailed performance report in Markdown format.
 
-  **Performance Report Structure:**
-  - **Overall Summary:** A brief overview of the candidate's performance.
-  - **Strengths:** List specific strengths demonstrated during the interview.
-  - **Areas for Improvement:** Provide constructive feedback on weak answers or areas that need more detail.
-  - **Sample Answers:** For each area of improvement, provide an example of a stronger answer.
-  - **Final Recommendation:** A concluding thought on the candidate's suitability for the role.
+  **Performance Report Structure (use Markdown formatting):**
+  - **## Overall Summary**
+    - A brief overview of the candidate's performance.
+  - **## Strengths**
+    - Use a bulleted list to highlight specific strengths.
+  - **## Areas for Improvement**
+    - Use a bulleted list for constructive feedback on weak answers.
+  - **## Sample Answers**
+    - For each area of improvement, provide an example of a stronger answer under a sub-heading (e.g., ### For the question about X...).
+  - **## Final Recommendation**
+    - A concluding thought on the candidate's suitability for the role.
 
   **Conversation History:**
   {{#each history}}
@@ -67,3 +72,5 @@ const conductInterviewFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    
