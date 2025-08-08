@@ -140,7 +140,7 @@ export default function Home() {
           <div className="hidden md:block">
           <svg
               viewBox="0 0 600 400"
-              className="rounded-xl shadow-xl w-full h-auto"
+              className="rounded-xl w-full h-auto"
               aria-label="An animated illustration of gears turning, representing the CareerAI platform at work."
             >
               <defs>
