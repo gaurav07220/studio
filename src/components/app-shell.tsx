@@ -11,22 +11,27 @@ import {
   TrendingUp,
   Users,
   BrainCircuit,
+  Settings,
+  HelpCircle,
 } from "lucide-react";
-import { CareerCoachWidget } from "@/components/career-coach-widget";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarProvider,
+  SidebarSeparator,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CareerCoachWidget } from "@/components/career-coach-widget";
 
-const navItems = [
+const mainNavItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/resume-analyzer", label: "Resume Analyzer", icon: FileText },
   { href: "/job-matcher", label: "Job Matcher", icon: Briefcase },
@@ -38,6 +43,11 @@ const navItems = [
   },
   { href: "/job-market", label: "Job Market", icon: TrendingUp },
 ];
+
+const secondaryNavItems = [
+    { href: "/settings", label: "Settings", icon: Settings },
+    { href: "/help", label: "Help & Support", icon: HelpCircle },
+]
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -51,12 +61,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="flex items-center gap-2 text-xl font-semibold font-headline"
           >
             <BrainCircuit className="w-8 h-8 text-accent" />
-            <span>CareerAI</span>
+            <span className="group-data-[collapsible=icon]:hidden">CareerAI</span>
           </Link>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {navItems.map((item) => (
+            {mainNavItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
@@ -76,6 +86,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
+        <SidebarFooter className="p-2 mt-auto">
+            <SidebarSeparator className="mb-2"/>
+             <SidebarMenu>
+                {secondaryNavItems.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton
+                        asChild
+                        isActive={pathname.startsWith(item.href)}
+                        tooltip={item.label}
+                        >
+                        <Link href="#">
+                            <item.icon />
+                            <span>{item.label}</span>
+                        </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                ))}
+            </SidebarMenu>
+            <SidebarSeparator className="my-2"/>
+            <div className="p-2 flex items-center gap-2">
+                <Avatar className="h-10 w-10 border">
+                    <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col group-data-[collapsible=icon]:hidden">
+                    <span className="font-semibold text-sm text-sidebar-foreground">User</span>
+                    <span className="text-xs text-sidebar-foreground/70">user@email.com</span>
+                </div>
+            </div>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 md:px-6 sticky top-0 z-30">
