@@ -6,7 +6,7 @@ const firebaseConfig = {
   projectId: "careerai-9ab6z",
   appId: "1:200105545013:web:bf38ba9bea4e57d4fd107c",
   storageBucket: "careerai-9ab6z.firebasestorage.app",
-  apiKey: "AIzaSyDHsdmiyMFgViTtc-tJYdCA-VrXewNWSZM",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "careerai-9ab6z.firebaseapp.com",
   messagingSenderId: "200105545013",
 };
