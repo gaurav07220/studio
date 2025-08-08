@@ -129,6 +129,7 @@ export default function Home() {
               </Button>
             </div>
           </div>
+<<<<<<< HEAD
           {/* <div className="hidden md:block">
             <Image
               src="https://placehold.co/600x400.png"
@@ -139,6 +140,74 @@ export default function Home() {
               className="rounded-xl shadow-xl"
             />
           </div> */}
+=======
+          <div className="hidden md:block">
+            <svg
+                viewBox="0 0 600 400"
+                className="rounded-xl shadow-xl w-full h-auto"
+                aria-label="An illustration showing a person climbing a ladder of success with AI assistance"
+                >
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 0.1}} />
+                    <stop offset="100%" style={{stopColor: 'hsl(var(--accent))', stopOpacity: 0.1}} />
+                    </linearGradient>
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <rect width="600" height="400" rx="12" fill="url(#grad1)" />
+                
+                {/* Background grid */}
+                <path d="M0 100 H600 M0 200 H600 M0 300 H600 M100 0 V400 M200 0 V400 M300 0 V400 M400 0 V400 M500 0 V400" stroke="hsl(var(--border))" strokeWidth="0.5" strokeOpacity="0.5" />
+
+                {/* Bar chart representing growth */}
+                <g transform="translate(50, 350)">
+                    <rect x="20" y="-100" width="40" height="100" fill="hsl(var(--primary) / 0.3)" rx="4"/>
+                    <rect x="80" y="-150" width="40" height="150" fill="hsl(var(--primary) / 0.5)" rx="4"/>
+                    <rect x="140" y="-220" width="40" height="220" fill="hsl(var(--primary) / 0.7)" rx="4"/>
+                    <rect x="200" y="-280" width="40" height="280" fill="hsl(var(--primary))" rx="4"/>
+                </g>
+
+                {/* AI/Tech elements */}
+                <g stroke="hsl(var(--accent))" strokeWidth="2" fill="none" >
+                    <path d="M400 50 Q 450 100 400 150" />
+                    <path d="M420 70 Q 480 130 420 190" />
+                    <circle cx="400" cy="50" r="4" fill="hsl(var(--accent))" filter="url(#glow)"/>
+                    <circle cx="400" cy="150" r="4" fill="hsl(var(--accent))" filter="url(#glow)"/>
+                    <circle cx="420" cy="70" r="4" fill="hsl(var(--accent))" filter="url(#glow)"/>
+                    <circle cx="420" cy="190" r="4" fill="hsl(var(--accent))" filter="url(#glow)"/>
+                    <circle cx="480" cy="130" r="4" fill="hsl(var(--accent))" filter="url(#glow)"/>
+                </g>
+
+                {/* Person climbing */}
+                <g transform="translate(220, 70)" fill="hsl(var(--foreground))">
+                    {/* Head */}
+                    <circle cx="0" cy="-5" r="8" />
+                    {/* Body */}
+                    <path d="M-10 5 L 0 20 L 10 5 L 0 30 Z" />
+                    {/* Limbs reaching up */}
+                    <path d="M -8 -2 L -20 -30 M 8 -2 L 20 -30" stroke="hsl(var(--foreground))" strokeWidth="3" strokeLinecap="round" />
+                </g>
+                
+                {/* Floating UI elements */}
+                <g transform="translate(450, 250)">
+                    <rect width="120" height="80" rx="8" fill="hsl(var(--card))" stroke="hsl(var(--border))" />
+                    <rect x="10" y="10" width="100" height="8" rx="4" fill="hsl(var(--primary))" />
+                    <rect x="10" y="25" width="80" height="6" rx="3" fill="hsl(var(--muted))" />
+                    <rect x="10" y="40" width="90" height="6" rx="3" fill="hsl(var(--muted))" />
+                    <rect x="10" y="55" width="70" height="6" rx="3" fill="hsl(var(--muted))" />
+                </g>
+
+                <circle cx="80" cy="80" r="20" fill="hsl(var(--accent) / 0.2)" />
+                <path d="M75 80 L 80 85 L 90 75" stroke="hsl(var(--accent))" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+>>>>>>> baa46bc (you added 600 * 400 instead of svg related to our platform)
         </div>
       </section>
 
