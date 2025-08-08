@@ -4,16 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
 import {
-  Briefcase,
-  FileText,
-  Home,
-  Lightbulb,
-  TrendingUp,
-  Users,
   BrainCircuit,
   Settings,
   HelpCircle,
   Menu,
+  User,
+  DollarSign,
+  LogOut,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CareerCoachWidget } from "@/components/career-coach-widget";
@@ -37,8 +34,10 @@ const mainNavItems = [
   { href: "/job-market", label: "Job Market" },
 ];
 
-const secondaryNavItems = [
-    { href: "#", label: "Settings", icon: Settings },
+const userMenuItems = [
+    { href: "/profile", label: "Profile", icon: User },
+    { href: "/settings", label: "Settings", icon: Settings },
+    { href: "/pricing", label: "Pricing", icon: DollarSign },
     { href: "#", label: "Help & Support", icon: HelpCircle },
 ]
 
@@ -94,7 +93,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {secondaryNavItems.map(item => (
+                {userMenuItems.map(item => (
                     <DropdownMenuItem key={item.label} asChild>
                        <Link href={item.href} className="flex items-center gap-2">
                             <item.icon className="w-4 h-4"/>
@@ -102,6 +101,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                        </Link>
                     </DropdownMenuItem>
                 ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                    <Link href="#" className="flex items-center gap-2">
+                        <LogOut className="w-4 h-4"/>
+                        <span>Logout</span>
+                    </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
@@ -125,7 +131,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     <BrainCircuit className="h-6 w-6 text-primary" />
                     <span>CareerAI</span>
                   </Link>
-                  {mainNavItems.map((item) => (
+                  {[...mainNavItems, ...userMenuItems].map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}

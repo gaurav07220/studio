@@ -1,0 +1,96 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Upload } from "lucide-react";
+
+export default function ProfilePage() {
+  return (
+    <div className="p-4 md:p-8 flex flex-col gap-8">
+      <header>
+        <h1 className="font-headline text-4xl font-bold tracking-tight">
+          Your Profile
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Keep your professional information up-to-date.
+        </p>
+      </header>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="lg:col-span-2 space-y-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Personal Information</CardTitle>
+                    <CardDescription>Basic details about you.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <div className="space-y-2">
+                        <Label htmlFor="name">Full Name</Label>
+                        <Input id="name" defaultValue="Alex Doe" />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="email">Email Address</Label>
+                        <Input id="email" type="email" defaultValue="alex.doe@example.com" />
+                    </div>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle>Professional Details</CardTitle>
+                    <CardDescription>Your professional headline, summary, and online presence.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <div className="space-y-2">
+                        <Label htmlFor="headline">Professional Headline</Label>
+                        <Input id="headline" placeholder="e.g., Senior Software Engineer at TechCorp" />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="summary">Professional Summary</Label>
+                        <Textarea id="summary" placeholder="A brief summary of your skills and experience." />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="linkedin">LinkedIn Profile</Label>
+                        <Input id="linkedin" placeholder="https://linkedin.com/in/yourprofile" />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="portfolio">Portfolio/Website</Label>
+                        <Input id="portfolio" placeholder="https://yourportfolio.com" />
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+        
+        <div className="space-y-8">
+             <Card>
+                <CardHeader>
+                    <CardTitle>Profile Picture</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center gap-4">
+                    <Avatar className="w-32 h-32">
+                        <AvatarImage src="https://placehold.co/128x128.png" data-ai-hint="user avatar" />
+                        <AvatarFallback>AD</AvatarFallback>
+                    </Avatar>
+                     <Button variant="outline">
+                        <Upload className="mr-2" />
+                        Upload Photo
+                    </Button>
+                </CardContent>
+            </Card>
+        </div>
+      </div>
+      <div className="flex justify-end">
+        <Button>Save Changes</Button>
+      </div>
+    </div>
+  );
+}
