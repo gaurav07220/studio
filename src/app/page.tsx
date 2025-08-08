@@ -138,69 +138,62 @@ export default function Home() {
             </div>
           </div>
           <div className="hidden md:block">
-            <svg
-                viewBox="0 0 600 400"
-                className="rounded-xl shadow-xl w-full h-auto"
-                aria-label="An illustration showing a person climbing a ladder of success with AI assistance"
-                >
-                <defs>
-                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 0.1}} />
-                    <stop offset="100%" style={{stopColor: 'hsl(var(--accent))', stopOpacity: 0.1}} />
-                    </linearGradient>
-                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                        <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                </defs>
-                <rect width="600" height="400" rx="12" fill="url(#grad1)" />
-                
-                {/* Background grid */}
-                <path d="M0 100 H600 M0 200 H600 M0 300 H600 M100 0 V400 M200 0 V400 M300 0 V400 M400 0 V400 M500 0 V400" stroke="hsl(var(--border))" strokeWidth="0.5" strokeOpacity="0.5" />
+          <svg
+              viewBox="0 0 600 400"
+              className="rounded-xl shadow-xl w-full h-auto"
+              aria-label="An illustration of a student flying towards their career goals with AI assistance."
+            >
+              <defs>
+                <linearGradient id="grad-sky" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: 'hsl(var(--background))', stopOpacity: 1 }} />
+                  <stop offset="100%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.1 }} />
+                </linearGradient>
+                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="5" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <rect width="600" height="400" rx="12" fill="url(#grad-sky)" />
 
-                {/* Bar chart representing growth */}
-                <g transform="translate(50, 350)">
-                    <rect x="20" y="-100" width="40" height="100" fill="hsl(var(--primary) / 0.3)" rx="4"/>
-                    <rect x="80" y="-150" width="40" height="150" fill="hsl(var(--primary) / 0.5)" rx="4"/>
-                    <rect x="140" y="-220" width="40" height="220" fill="hsl(var(--primary) / 0.7)" rx="4"/>
-                    <rect x="200" y="-280" width="40" height="280" fill="hsl(var(--primary))" rx="4"/>
-                </g>
+              {/* Stars */}
+              <circle cx="50" cy="50" r="2" fill="hsl(var(--accent))" opacity="0.6" />
+              <circle cx="150" cy="80" r="1" fill="hsl(var(--accent))" opacity="0.8" />
+              <circle cx="550" cy="60" r="2" fill="hsl(var(--accent))" opacity="0.7" />
+              <circle cx="480" cy="150" r="1" fill="hsl(var(--accent))" opacity="0.9" />
+              <circle cx="100" cy="250" r="1" fill="hsl(var(--accent))" opacity="0.5" />
 
-                {/* AI/Tech elements */}
-                <g stroke="hsl(var(--accent))" strokeWidth="2" fill="none" >
-                    <path d="M400 50 Q 450 100 400 150" />
-                    <path d="M420 70 Q 480 130 420 190" />
-                    <circle cx="400" cy="50" r="4" fill="hsl(var(--accent))" filter="url(#glow)"/>
-                    <circle cx="400" cy="150" r="4" fill="hsl(var(--accent))" filter="url(#glow)"/>
-                    <circle cx="420" cy="70" r="4" fill="hsl(var(--accent))" filter="url(#glow)"/>
-                    <circle cx="420" cy="190" r="4" fill="hsl(var(--accent))" filter="url(#glow)"/>
-                    <circle cx="480" cy="130" r="4" fill="hsl(var(--accent))" filter="url(#glow)"/>
-                </g>
+              {/* Career Goal - Abstract Building */}
+              <g transform="translate(450, 150)">
+                <path d="M 0 250 L 0 100 L 50 50 L 100 100 L 100 250 Z" fill="hsl(var(--primary) / 0.3)" />
+                <path d="M 25 250 L 25 120 L 50 95 L 75 120 L 75 250 Z" fill="hsl(var(--primary) / 0.5)" />
+                <circle cx="50" cy="40" r="20" fill="hsl(var(--accent))" filter="url(#glow)" />
+                <path d="M50 60 V 80" stroke="hsl(var(--accent))" strokeWidth="2" />
+              </g>
 
-                {/* Person climbing */}
-                <g transform="translate(220, 70)" fill="hsl(var(--foreground))">
-                    {/* Head */}
-                    <circle cx="0" cy="-5" r="8" />
-                    {/* Body */}
-                    <path d="M-10 5 L 0 20 L 10 5 L 0 30 Z" />
-                    {/* Limbs reaching up */}
-                    <path d="M -8 -2 L -20 -30 M 8 -2 L 20 -30" stroke="hsl(var(--foreground))" strokeWidth="3" strokeLinecap="round" />
+              {/* Student Figure */}
+              <g transform="translate(150, 200)">
+                {/* Cape */}
+                <path d="M 0,0 C 20,-30 60,-30 80,0 L 40,50 Z" fill="hsl(var(--primary))" transform="rotate(-15)" />
+                {/* Body */}
+                <circle cx="0" cy="0" r="15" fill="hsl(var(--foreground))" />
+                <path d="M 0 15 L 0 50 L -10 60 L 10 60 Z" fill="hsl(var(--foreground))" />
+                {/* Arm */}
+                <path d="M -10 20 L -30 10" stroke="hsl(var(--foreground))" strokeWidth="6" strokeLinecap="round" />
+                 {/* Graduation Cap */}
+                <g transform="translate(0, -18)">
+                  <rect x="-20" y="-5" width="40" height="6" fill="hsl(var(--foreground))" />
+                  <rect x="-5" y="-10" width="10" height="5" fill="hsl(var(--foreground))" />
+                  <path d="M 5 -5 L 15 -10" stroke="hsl(var(--foreground))" strokeWidth="2" />
                 </g>
-                
-                {/* Floating UI elements */}
-                <g transform="translate(450, 250)">
-                    <rect width="120" height="80" rx="8" fill="hsl(var(--card))" stroke="hsl(var(--border))" />
-                    <rect x="10" y="10" width="100" height="8" rx="4" fill="hsl(var(--primary))" />
-                    <rect x="10" y="25" width="80" height="6" rx="3" fill="hsl(var(--muted))" />
-                    <rect x="10" y="40" width="90" height="6" rx="3" fill="hsl(var(--muted))" />
-                    <rect x="10" y="55" width="70" height="6" rx="3" fill="hsl(var(--muted))" />
-                </g>
+              </g>
 
-                <circle cx="80" cy="80" r="20" fill="hsl(var(--accent) / 0.2)" />
-                <path d="M75 80 L 80 85 L 90 75" stroke="hsl(var(--accent))" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+              {/* Speed Lines */}
+              <path d="M 50 180 H 120" stroke="hsl(var(--accent))" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
+              <path d="M 70 210 H 130" stroke="hsl(var(--accent))" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
+              <path d="M 60 240 H 110" stroke="hsl(var(--accent))" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
             </svg>
           </div>
         </div>
