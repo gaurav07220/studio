@@ -33,6 +33,25 @@ const ResumeAnalysisOutputSchema = z.object({
     feedback: z.string().describe('Feedback on the resume\'s formatting, layout, and readability.'),
     suggestions: z.array(z.string()).describe('A list of specific suggestions to improve formatting and readability.'),
   }),
+  extractedData: z.object({
+    name: z.string().optional().describe("The full name of the candidate."),
+    email: z.string().optional().describe("The email address of the candidate."),
+    phone: z.string().optional().describe("The phone number of the candidate."),
+    linkedin: z.string().optional().describe("The URL of the candidate's LinkedIn profile."),
+    summary: z.string().optional().describe("The professional summary or objective statement from the resume."),
+    experience: z.array(z.object({
+        role: z.string().describe("The job title or role."),
+        company: z.string().describe("The name of the company."),
+        date: z.string().describe("The dates of employment (e.g., 'Jan 2021 - Present')."),
+        points: z.array(z.string()).describe("A list of accomplishments or responsibilities for this role."),
+    })).optional().describe("A list of the candidate's work experiences."),
+    education: z.array(z.object({
+        degree: z.string().describe("The degree or qualification obtained."),
+        university: z.string().describe("The name of the university or institution."),
+        date: z.string().describe("The dates of attendance (e.g., '2014 - 2018')."),
+    })).optional().describe("A list of the candidate's educational qualifications."),
+    skills: z.array(z.string()).optional().describe("A list of the candidate's skills."),
+  }).describe("Structured data extracted from the resume content.")
 });
 export type ResumeAnalysisOutput = z.infer<typeof ResumeAnalysisOutputSchema>;
 
@@ -44,7 +63,7 @@ const prompt = ai.definePrompt({
   name: 'resumeAnalysisFeedbackPrompt',
   input: {schema: ResumeAnalysisInputSchema},
   output: {schema: ResumeAnalysisOutputSchema},
-  prompt: `You are an expert career coach and professional resume reviewer. A user will upload their resume and you will provide a comprehensive analysis.
+  prompt: `You are an expert career coach and professional resume reviewer. A user will upload their resume and you will provide a comprehensive analysis and extract structured data from it.
 
   Analyze the following resume:
   {{media url=resumeDataUri}}
@@ -56,6 +75,7 @@ const prompt = ai.definePrompt({
   4.  **Areas for Improvement**: Pinpoint specific, actionable weaknesses.
   5.  **Keyword Analysis**: Extract key skills and suggest others that might be missing for common roles in the candidate's likely field.
   6.  **Formatting and Readability**: Comment on the layout, font, and overall visual presentation and provide suggestions for improvement.
+  7.  **Extracted Data**: Extract the candidate's information into a structured JSON object. If a field is not present in the resume, omit it from the object.
   `,
 });
 

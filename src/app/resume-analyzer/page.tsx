@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import {
   FileText,
   Loader2,
@@ -11,6 +11,8 @@ import {
   Lightbulb,
   Sparkles,
   ClipboardCheck,
+  Download,
+  Eye,
 } from "lucide-react";
 
 import {
@@ -32,44 +34,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ClassicTemplate, ModernTemplate, CreativeTemplate } from "@/components/resume-template";
-
-const templateData = {
-    name: "John Doe",
-    email: "john.doe@email.com",
-    phone: "123-456-7890",
-    linkedin: "linkedin.com/in/johndoe",
-    summary: "Highly motivated and results-oriented professional with 5+ years of experience in software development. Proven ability to design, develop, and deploy high-quality software solutions. Seeking to leverage my skills in a challenging role.",
-    experience: [
-        {
-            role: "Senior Software Engineer",
-            company: "Tech Solutions Inc.",
-            date: "Jan 2021 - Present",
-            points: [
-                "Led the development of a new microservices-based architecture, improving system scalability by 40%.",
-                "Mentored junior engineers, fostering a culture of knowledge sharing and continuous improvement.",
-                "Reduced API response times by 50% through performance optimization and query tuning.",
-            ],
-        },
-        {
-            role: "Software Engineer",
-            company: "Innovate Corp.",
-            date: "Jun 2018 - Dec 2020",
-            points: [
-                "Developed and maintained features for a large-scale e-commerce platform using React and Node.js.",
-                "Collaborated with cross-functional teams to deliver high-quality products on schedule.",
-            ],
-        },
-    ],
-    education: [
-        {
-            degree: "B.S. in Computer Science",
-            university: "State University",
-            date: "2014 - 2018",
-        },
-    ],
-    skills: ["JavaScript", "React", "Node.js", "Python", "AWS", "Docker", "SQL", "Agile Methodologies"],
-};
+import { ClassicTemplate, ModernTemplate, CreativeTemplate, type TemplateData } from "@/components/resume-template";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 
 export default function ResumeAnalyzerPage() {
@@ -77,7 +45,12 @@ export default function ResumeAnalyzerPage() {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [result, setResult] = useState<ResumeAnalysisOutput | null>(null);
+  const [templateData, setTemplateData] = useState<TemplateData | null>(null);
   const { toast } = useToast();
+  const modernRef = useRef<HTMLDivElement>(null);
+  const classicRef = useRef<HTMLDivElement>(null);
+  const creativeRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState("modern");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -90,6 +63,7 @@ export default function ResumeAnalyzerPage() {
         setFile(selectedFile);
         setFileName(selectedFile.name);
         setResult(null);
+        setTemplateData(null);
       } else {
         toast({
           variant: "destructive",
@@ -122,6 +96,20 @@ export default function ResumeAnalyzerPage() {
               resumeDataUri: dataUri,
             });
             setResult(res);
+
+            // Map extracted data to template data format
+            const extracted = res.extractedData;
+            setTemplateData({
+                name: extracted.name || "Your Name",
+                email: extracted.email || "your.email@example.com",
+                phone: extracted.phone || "123-456-7890",
+                linkedin: extracted.linkedin || "linkedin.com/in/yourprofile",
+                summary: extracted.summary || "A brief professional summary.",
+                experience: extracted.experience || [],
+                education: extracted.education || [],
+                skills: extracted.skills || [],
+            });
+
           } else {
             throw new Error("Could not read file.");
           }
@@ -139,9 +127,55 @@ export default function ResumeAnalyzerPage() {
               : "An unknown error occurred.",
         });
         setResult(null);
+        setTemplateData(null);
       }
     });
   };
+
+  const handleDownload = async () => {
+    const refs = {
+        modern: modernRef,
+        classic: classicRef,
+        creative: creativeRef,
+    };
+    const elementToCapture = refs[activeTab as keyof typeof refs].current;
+
+    if (elementToCapture) {
+      toast({ title: "Generating PDF...", description: "Please wait a moment." });
+      try {
+        const canvas = await html2canvas(elementToCapture, { scale: 2, useCORS: true, backgroundColor: null });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+        const imgX = (pdfWidth - imgWidth * ratio) / 2;
+        const imgY = 0;
+
+        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+        pdf.save(`${templateData?.name || 'resume'}-${activeTab}.pdf`);
+      } catch (error) {
+         toast({ variant: "destructive", title: "Download Failed", description: error instanceof Error ? error.message : "Could not generate PDF." });
+      }
+    }
+  };
+
+  const renderTemplateWithRef = (TemplateComponent: React.FC<{ data: TemplateData, ref?: React.Ref<HTMLDivElement> }>, ref: React.Ref<HTMLDivElement>) => (
+    templateData ? <TemplateComponent data={templateData} ref={ref} /> : <div>Loading template data...</div>
+  );
+
+  const renderPreviewTemplate = () => {
+    if(!templateData) return <div/>;
+    switch(activeTab) {
+        case 'classic': return <ClassicTemplate data={templateData} />;
+        case 'creative': return <CreativeTemplate data={templateData} />;
+        case 'modern':
+        default: return <ModernTemplate data={templateData} />;
+    }
+  }
+
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
@@ -305,26 +339,57 @@ export default function ResumeAnalyzerPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><ClipboardCheck /> ATS-Friendly Templates</CardTitle>
               <CardDescription>
-                Your resume scored {result.atsCompatibilityScore}/100 for ATS compatibility. Consider using one of these standard, parser-friendly templates to improve your score.
+                Your resume scored {result.atsCompatibilityScore}/100 for ATS compatibility. Consider using one of these standard, parser-friendly templates to improve your score. Your extracted information has been pre-filled.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="modern">
-                <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="modern">Modern</TabsTrigger>
-                    <TabsTrigger value="classic">Classic</TabsTrigger>
-                    <TabsTrigger value="creative">Creative</TabsTrigger>
-                </TabsList>
-                <TabsContent value="modern" className="mt-4">
-                    <ModernTemplate data={templateData} />
-                </TabsContent>
-                <TabsContent value="classic" className="mt-4">
-                    <ClassicTemplate data={templateData} />
-                </TabsContent>
-                <TabsContent value="creative" className="mt-4">
-                    <CreativeTemplate data={templateData} />
-                </TabsContent>
-              </Tabs>
+                {templateData ? (
+                <>
+                <Tabs defaultValue="modern" onValueChange={setActiveTab} value={activeTab}>
+                    <div className="flex justify-between items-center mb-4">
+                        <TabsList className="grid w-full max-w-md grid-cols-3">
+                            <TabsTrigger value="modern">Modern</TabsTrigger>
+                            <TabsTrigger value="classic">Classic</TabsTrigger>
+                            <TabsTrigger value="creative">Creative</TabsTrigger>
+                        </TabsList>
+                        <div className="flex gap-2">
+                             <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline"><Eye className="mr-2 h-4 w-4" /> Preview</Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
+                                    <DialogHeader>
+                                        <DialogTitle>Resume Preview: {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="flex-1 overflow-auto">
+                                        {renderPreviewTemplate()}
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                            <Button onClick={handleDownload}><Download className="mr-2 h-4 w-4" /> Download as PDF</Button>
+                        </div>
+                    </div>
+                    <div className="h-0 overflow-hidden">
+                        {/* Render templates off-screen for html2canvas */}
+                        {renderTemplateWithRef(ModernTemplate, modernRef)}
+                        {renderTemplateWithRef(ClassicTemplate, classicRef)}
+                        {renderTemplateWithRef(CreativeTemplate, creativeRef)}
+                    </div>
+
+                    <TabsContent value="modern">
+                        <ModernTemplate data={templateData} />
+                    </TabsContent>
+                    <TabsContent value="classic">
+                        <ClassicTemplate data={templateData} />
+                    </TabsContent>
+                    <TabsContent value="creative">
+                        <CreativeTemplate data={templateData} />
+                    </TabsContent>
+                </Tabs>
+                </>
+                ) : (
+                    <div className="text-center text-muted-foreground">Loading extracted data...</div>
+                )}
             </CardContent>
           </Card>
 
