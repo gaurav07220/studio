@@ -9,6 +9,12 @@ import {
   TrendingUp,
   ArrowRight,
   Check,
+  UploadCloud,
+  FileCheck,
+  Send,
+  Zap,
+  LayoutGrid,
+  Wallet,
 } from "lucide-react";
 import { FeatureCard } from "@/components/feature-card";
 import { Button } from "@/components/ui/button";
@@ -67,29 +73,50 @@ const features = [
 
 const howItWorks = [
     {
+        icon: UploadCloud,
         title: "Upload Your Resume",
         description: "Start by uploading your current resume. Our AI performs a deep analysis in seconds."
     },
     {
+        icon: FileCheck,
         title: "Get Instant Feedback",
         description: "Receive a detailed report on ATS compatibility, skills, and formatting."
     },
     {
+        icon: Send,
         title: "Enhance and Apply",
         description: "Use our tools to tailor your resume, find matching jobs, and get ready for interviews."
     }
 ]
 
+const whyPoints = [
+    {
+        icon: Zap,
+        title: "AI-Powered Insights",
+        description: "Leverage cutting-edge AI to get a data-driven advantage in your job search."
+    },
+    {
+        icon: LayoutGrid,
+        title: "All-in-One Toolkit",
+        description: "From resume optimization to interview prep, all the tools you need are in one place."
+    },
+    {
+        icon: Wallet,
+        title: "Completely Free",
+        description: "Get access to premium career tools without any cost. Your journey to a better job starts here."
+    }
+]
+
 export default function Home() {
   return (
-    <div className="flex flex-col gap-12 md:gap-20">
+    <div className="flex flex-col gap-12 md:gap-20 pb-12">
       {/* Hero Section */}
       <section className="pt-8 md:pt-16">
         <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-10 items-center">
           <div className="flex flex-col gap-4">
             <h1 className="font-headline text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter">
-              Build Your Future with{" "}
-              <span className="text-accent">AI-Powered</span> Career Tools
+              Land Your Dream Job Faster with{" "}
+              <span className="text-primary">CareerAI</span>
             </h1>
             <p className="max-w-xl text-lg text-muted-foreground">
               Stop guessing and start getting ahead. CareerAI provides the
@@ -121,20 +148,37 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Why Section */}
+       <section className="container px-4 md:px-6">
+         <div className="grid md:grid-cols-3 gap-8">
+            {whyPoints.map((point) => (
+                <div key={point.title} className="flex items-start gap-4">
+                    <div className="bg-primary/10 p-3 rounded-full text-primary">
+                        <point.icon className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <h3 className="font-headline text-lg font-semibold">{point.title}</h3>
+                        <p className="text-muted-foreground text-sm">{point.description}</p>
+                    </div>
+                </div>
+            ))}
+         </div>
+       </section>
+
        {/* How It Works Section */}
       <section className="py-8 md:py-16 bg-muted/50">
         <div className="container px-4 md:px-6">
             <div className="text-center max-w-2xl mx-auto">
-                <h2 className="font-headline text-3xl md:text-4xl font-bold">How It Works</h2>
+                <h2 className="font-headline text-3xl md:text-4xl font-bold">Get Job-Ready in 3 Simple Steps</h2>
                 <p className="mt-2 text-muted-foreground">
-                    Get from resume to ready-to-apply in three simple steps.
+                    From resume to ready-to-apply, our process is designed to be simple and effective.
                 </p>
             </div>
             <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                 {howItWorks.map((step, index) => (
-                    <div key={index} className="flex flex-col items-center gap-4">
+                    <div key={index} className="flex flex-col items-center gap-4 p-4">
                         <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground">
-                            <span className="font-bold text-2xl">{index + 1}</span>
+                            <step.icon className="w-8 h-8"/>
                         </div>
                         <h3 className="font-headline text-xl font-semibold">{step.title}</h3>
                         <p className="text-muted-foreground">{step.description}</p>
@@ -173,11 +217,11 @@ export default function Home() {
        {/* Final CTA Section */}
        <section className="py-8 md:py-16">
         <div className="container px-4 md:px-6">
-            <div className="bg-accent text-accent-foreground rounded-xl p-8 md:p-12 text-center shadow-lg">
+            <div className="bg-primary text-primary-foreground rounded-xl p-8 md:p-12 text-center shadow-lg">
                  <h2 className="font-headline text-3xl md:text-4xl font-bold">
                     Ready to Land Your Dream Job?
                 </h2>
-                <p className="mt-4 max-w-2xl mx-auto">
+                <p className="mt-4 max-w-2xl mx-auto text-primary-foreground/80">
                     Take the first step towards a better career today. Get your free resume analysis and see where you stand.
                 </p>
                  <div className="mt-6">
