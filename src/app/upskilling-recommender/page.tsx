@@ -143,7 +143,7 @@ export default function UpskillingRecommenderPage() {
             <Card>
                 <CardHeader>
                     <CardTitle><div className="h-6 bg-muted rounded w-1/3 animate-pulse"></div></CardTitle>
-                </Header>
+                </CardHeader>
                 <CardContent className="space-y-2">
                     <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
                     <div className="h-4 bg-muted rounded w-5/6 animate-pulse"></div>
