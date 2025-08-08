@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
+import Link from "next/link";
 import {
   FileText,
   Loader2,
@@ -13,6 +14,9 @@ import {
   ClipboardCheck,
   Download,
   Eye,
+  ArrowRight,
+  GraduationCap,
+  Briefcase,
 } from "lucide-react";
 
 import {
@@ -43,6 +47,7 @@ import html2canvas from "html2canvas";
 export default function ResumeAnalyzerPage() {
   const [isPending, startTransition] = useTransition();
   const [file, setFile] = useState<File | null>(null);
+  const [fileContent, setFileContent] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
   const [result, setResult] = useState<ResumeAnalysisOutput | null>(null);
   const [templateData, setTemplateData] = useState<TemplateData | null>(null);
@@ -92,6 +97,7 @@ export default function ResumeAnalyzerPage() {
         reader.onload = async (e) => {
           const dataUri = e.target?.result as string;
           if (dataUri) {
+            setFileContent(dataUri);
             const res = await resumeAnalysisFeedback({
               resumeDataUri: dataUri,
             });
@@ -251,6 +257,29 @@ export default function ResumeAnalyzerPage() {
 
       {result && (
         <div className="space-y-8">
+          <Card>
+            <CardHeader>
+                <CardTitle>Take the Next Step</CardTitle>
+                <CardDescription>Use your analysis results to find jobs and identify areas for growth.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <Button asChild variant="outline" size="lg">
+                    <Link href={`/upskilling-recommender?skillGaps=${encodeURIComponent(result.areasForImprovement.join(", "))}`}>
+                        <GraduationCap className="mr-2"/>
+                        Improve Your Skills
+                        <ArrowRight className="ml-auto"/>
+                    </Link>
+                </Button>
+                 <Button asChild variant="outline" size="lg">
+                    <Link href={`/job-matcher?resume=${encodeURIComponent(fileContent)}`}>
+                        <Briefcase className="mr-2"/>
+                        Find Matching Jobs
+                        <ArrowRight className="ml-auto"/>
+                    </Link>
+                </Button>
+            </CardContent>
+          </Card>
+          
           <Card>
             <CardHeader>
               <CardTitle>Analysis Report</CardTitle>

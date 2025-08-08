@@ -12,6 +12,7 @@ import {
   User,
   DollarSign,
   LogOut,
+  ClipboardList,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CareerCoachWidget } from "@/components/career-coach-widget";
@@ -26,10 +27,12 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 
 const mainNavItems = [
   { href: "/resume-analyzer", label: "Resume Analyzer" },
   { href: "/job-matcher", label: "Job Matcher" },
+  { href: "/ai-interviewer", label: "AI Interviewer" },
   { href: "/network-connector", label: "Network Connector" },
   { href: "/upskilling-recommender", label: "Upskilling" },
   { href: "/job-market", label: "Job Market" },
@@ -61,6 +64,7 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [openMobileMenu, setOpenMobileMenu] = React.useState(false);
+  const { user, loading, signOut } = useAuth();
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -120,11 +124,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
         
         <div className="flex items-center gap-4">
+          {!loading && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" size="icon" className="rounded-full">
                   <Avatar>
-                      <AvatarFallback>U</AvatarFallback>
+                      <AvatarFallback>{user.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
                   <span className="sr-only">Toggle user menu</span>
                 </Button>
@@ -141,18 +146,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <Link href="#" className="flex items-center gap-2">
+                <DropdownMenuItem onClick={signOut} className="cursor-pointer">
+                    <div className="flex items-center gap-2">
                         <LogOut className="w-4 h-4"/>
                         <span>Logout</span>
-                    </Link>
+                    </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          ) : !loading && (
+            <div className="flex items-center gap-2">
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/login">Log In</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </header>
       <main className="flex flex-1 flex-col">{children}</main>
-      <CareerCoachWidget />
+      {user && <CareerCoachWidget />}
     </div>
   );
 }
