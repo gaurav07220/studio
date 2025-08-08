@@ -1,9 +1,20 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { FileText, Loader2, FileUp, AlertTriangle } from "lucide-react";
+import {
+  FileText,
+  Loader2,
+  FileUp,
+  CheckCircle2,
+  AlertTriangle,
+  Lightbulb,
+  Sparkles,
+} from "lucide-react";
 
-import { resumeAnalysisFeedback } from "@/ai/flows/resume-analyzer";
+import {
+  resumeAnalysisFeedback,
+  type ResumeAnalysisOutput,
+} from "@/ai/flows/resume-analyzer";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,13 +27,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 export default function ResumeAnalyzerPage() {
   const [isPending, startTransition] = useTransition();
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>("");
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<ResumeAnalysisOutput | null>(null);
   const { toast } = useToast();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,10 +76,12 @@ export default function ResumeAnalyzerPage() {
         reader.onload = async (e) => {
           const dataUri = e.target?.result as string;
           if (dataUri) {
-            const res = await resumeAnalysisFeedback({ resumeDataUri: dataUri });
-            setResult(res.feedback);
+            const res = await resumeAnalysisFeedback({
+              resumeDataUri: dataUri,
+            });
+            setResult(res);
           } else {
-             throw new Error("Could not read file.");
+            throw new Error("Could not read file.");
           }
         };
         reader.onerror = () => {
@@ -78,7 +92,9 @@ export default function ResumeAnalyzerPage() {
           variant: "destructive",
           title: "Analysis Failed",
           description:
-            error instanceof Error ? error.message : "An unknown error occurred.",
+            error instanceof Error
+              ? error.message
+              : "An unknown error occurred.",
         });
         setResult(null);
       }
@@ -129,13 +145,17 @@ export default function ResumeAnalyzerPage() {
                 )}
               </Button>
             </div>
-            {fileName && <p className="text-sm text-muted-foreground mt-2">Selected: {fileName}</p>}
+            {fileName && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Selected: {fileName}
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
 
       {isPending && (
-         <Card>
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Loader2 className="animate-spin" />
@@ -154,23 +174,96 @@ export default function ResumeAnalyzerPage() {
       )}
 
       {result && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Analysis Results</CardTitle>
-            <CardDescription>
-              Here's our AI's feedback on your resume.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="prose prose-sm max-w-none whitespace-pre-wrap rounded-md bg-muted p-4">
-                {result}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Analysis Report</CardTitle>
+              <CardDescription>{result.summary}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Label>ATS Compatibility Score</Label>
+                <div className="flex items-center gap-4">
+                  <Progress value={result.atsCompatibilityScore} className="w-full" />
+                  <span className="font-bold text-lg text-primary">
+                    {result.atsCompatibilityScore}/100
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-green-600">
+                  <CheckCircle2 /> Strengths
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-disc space-y-2 pl-5">
+                  {result.strengths.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-yellow-600">
+                  <AlertTriangle /> Areas for Improvement
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="list-disc space-y-2 pl-5">
+                  {result.areasForImprovement.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+          
+           <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Sparkles /> Keyword Analysis</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-2">Extracted Keywords & Skills</h3>
+                <div className="flex flex-wrap gap-2">
+                    {result.keywordAnalysis.extractedKeywords.map(keyword => <Badge variant="secondary" key={keyword}>{keyword}</Badge>)}
+                </div>
+              </div>
+               <div>
+                <h3 className="font-semibold mb-2">Suggestions</h3>
+                <p className="text-sm text-muted-foreground">{result.keywordAnalysis.suggestions}</p>
+              </div>
+            </CardContent>
+          </Card>
+          
+           <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Lightbulb /> Formatting & Readability</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+               <p className="text-sm text-muted-foreground">{result.formattingAndReadability.feedback}</p>
+                <div>
+                    <h3 className="font-semibold mb-2">Suggestions</h3>
+                    <ul className="list-disc space-y-2 pl-5">
+                        {result.formattingAndReadability.suggestions.map((item, i) => (
+                            <li key={i}>{item}</li>
+                        ))}
+                    </ul>
+                </div>
+            </CardContent>
+          </Card>
+
+        </div>
       )}
 
       {!isPending && !result && (
-         <Card className="border-dashed">
+        <Card className="border-dashed">
           <CardContent className="p-6 text-center text-muted-foreground">
             <FileText className="mx-auto h-12 w-12" />
             <h3 className="mt-4 text-lg font-medium">

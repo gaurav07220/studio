@@ -21,7 +21,18 @@ const ResumeAnalysisInputSchema = z.object({
 export type ResumeAnalysisInput = z.infer<typeof ResumeAnalysisInputSchema>;
 
 const ResumeAnalysisOutputSchema = z.object({
-  feedback: z.string().describe('Feedback on how to improve the resume, including ATS compatibility and keyword optimization.'),
+  summary: z.string().describe("A brief one-paragraph summary of the resume's strengths and weaknesses."),
+  atsCompatibilityScore: z.number().describe('A score from 0 to 100 indicating how well the resume is optimized for Applicant Tracking Systems (ATS).'),
+  strengths: z.array(z.string()).describe('A list of key strengths of the resume.'),
+  areasForImprovement: z.array(z.string()).describe('A list of specific areas where the resume can be improved.'),
+  keywordAnalysis: z.object({
+    extractedKeywords: z.array(z.string()).describe('A list of the most relevant keywords and skills extracted from the resume.'),
+    suggestions: z.string().describe('Suggestions for adding or optimizing keywords to better match common job descriptions in the relevant field.'),
+  }),
+  formattingAndReadability: z.object({
+    feedback: z.string().describe('Feedback on the resume\'s formatting, layout, and readability.'),
+    suggestions: z.array(z.string()).describe('A list of specific suggestions to improve formatting and readability.'),
+  }),
 });
 export type ResumeAnalysisOutput = z.infer<typeof ResumeAnalysisOutputSchema>;
 
@@ -33,10 +44,18 @@ const prompt = ai.definePrompt({
   name: 'resumeAnalysisFeedbackPrompt',
   input: {schema: ResumeAnalysisInputSchema},
   output: {schema: ResumeAnalysisOutputSchema},
-  prompt: `You are an expert career coach. A user will upload their resume and you will provide feedback on how to improve it, including ATS compatibility and keyword optimization.
+  prompt: `You are an expert career coach and professional resume reviewer. A user will upload their resume and you will provide a comprehensive analysis.
 
-  Here is the resume:
+  Analyze the following resume:
   {{media url=resumeDataUri}}
+
+  Provide a detailed report covering the following areas:
+  1.  **Summary**: A brief one-paragraph overview of the resume.
+  2.  **ATS Compatibility Score**: Assign a score from 0-100 based on ATS-friendliness (standard format, clear headings, relevant keywords, etc.). A higher score is better.
+  3.  **Strengths**: Identify the strongest aspects of the resume.
+  4.  **Areas for Improvement**: Pinpoint specific, actionable weaknesses.
+  5.  **Keyword Analysis**: Extract key skills and suggest others that might be missing for common roles in the candidate's likely field.
+  6.  **Formatting and Readability**: Comment on the layout, font, and overall visual presentation and provide suggestions for improvement.
   `,
 });
 
