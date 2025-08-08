@@ -145,59 +145,76 @@ export default function Home() {
           <svg
               viewBox="0 0 600 400"
               className="rounded-xl shadow-xl w-full h-auto"
-              aria-label="An illustration of a student flying towards their career goals with AI assistance."
+              aria-label="An animated illustration of gears turning, representing the CareerAI platform at work."
             >
               <defs>
-                <linearGradient id="grad-sky" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" style={{ stopColor: 'hsl(var(--background))', stopOpacity: 1 }} />
-                  <stop offset="100%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 0.1 }} />
+                <linearGradient id="grad-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: 'hsl(var(--background))' }} />
+                  <stop offset="100%" style={{ stopColor: 'hsl(var(--muted))' }} />
                 </linearGradient>
-                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                  <feGaussianBlur stdDeviation="5" result="coloredBlur" />
-                  <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
+                <style>
+                  {`
+                    @keyframes rotate {
+                      from { transform: rotate(0deg); }
+                      to { transform: rotate(360deg); }
+                    }
+                    @keyframes rotate-reverse {
+                      from { transform: rotate(0deg); }
+                      to { transform: rotate(-360deg); }
+                    }
+                    @keyframes float {
+                      0%, 100% { transform: translateY(0); }
+                      50% { transform: translateY(-10px); }
+                    }
+                    .gear {
+                      animation: rotate 20s linear infinite;
+                      transform-origin: center;
+                    }
+                    .gear-reverse {
+                      animation: rotate-reverse 20s linear infinite;
+                      transform-origin: center;
+                    }
+                    .icon-float {
+                      animation: float 4s ease-in-out infinite;
+                    }
+                  `}
+                </style>
               </defs>
-              <rect width="600" height="400" rx="12" fill="url(#grad-sky)" />
-
-              {/* Stars */}
-              <circle cx="50" cy="50" r="2" fill="hsl(var(--accent))" opacity="0.6" />
-              <circle cx="150" cy="80" r="1" fill="hsl(var(--accent))" opacity="0.8" />
-              <circle cx="550" cy="60" r="2" fill="hsl(var(--accent))" opacity="0.7" />
-              <circle cx="480" cy="150" r="1" fill="hsl(var(--accent))" opacity="0.9" />
-              <circle cx="100" cy="250" r="1" fill="hsl(var(--accent))" opacity="0.5" />
-
-              {/* Career Goal - Abstract Building */}
-              <g transform="translate(450, 150)">
-                <path d="M 0 250 L 0 100 L 50 50 L 100 100 L 100 250 Z" fill="hsl(var(--primary) / 0.3)" />
-                <path d="M 25 250 L 25 120 L 50 95 L 75 120 L 75 250 Z" fill="hsl(var(--primary) / 0.5)" />
-                <circle cx="50" cy="40" r="20" fill="hsl(var(--accent))" filter="url(#glow)" />
-                <path d="M50 60 V 80" stroke="hsl(var(--accent))" strokeWidth="2" />
+              <rect width="600" height="400" rx="12" fill="url(#grad-bg)" />
+              
+              <g id="gears" opacity="0.1">
+                <path className="gear" fill="hsl(var(--primary))" d="M256,218.8c-2.4-3-5.5-5.3-9-6.9c-4.2-2-8.8-3-13.5-2.8c-4.7,0.2-9.3,1.5-13.4,3.8c-4.1,2.3-7.5,5.5-10.1,9.3l-2.4,3.6c-1.3,2-2.9,3.8-4.8,5.3c-3.7,3-8.2,4.8-12.8,4.8c-4.7,0-9.1-1.8-12.8-4.8c-1.9-1.5-3.5-3.3-4.8-5.3l-2.4-3.6c-2.6-3.8-6-7-10.1-9.3c-4.1-2.3-8.7-3.6-13.4-3.8c-4.7-0.2-9.3,0.8-13.5,2.8c-3.5,1.6-6.6,3.9-9,6.9l-2.4,3.6c-1.3,2-2.9,3.8-4.8,5.3c-3.7,3-8.2,4.8-12.8,4.8c-4.7,0-9.1-1.8-12.8-4.8c-1.9-1.5-3.5-3.3-4.8-5.3l-2.4-3.6c-2.6-3.8-6-7-10.1-9.3c-4.1-2.3-8.7-3.6-13.4-3.8c-4.7-0.2-9.3,0.8-13.5,2.8c-3.5,1.6-6.6,3.9-9,6.9" />
+                <path className="gear-reverse" fill="hsl(var(--primary))" d="M512.6,90.4c2.4,3,5.5,5.3,9,6.9c4.2,2,8.8,3,13.5,2.8c4.7-0.2,9.3-1.5,13.4-3.8c4.1-2.3,7.5-5.5,10.1-9.3l2.4-3.6c1.3-2,2.9-3.8,4.8-5.3c3.7-3,8.2-4.8,12.8-4.8c4.7,0,9.1,1.8,12.8,4.8c1.9,1.5,3.5,3.3,4.8,5.3l2.4,3.6c2.6,3.8,6,7,10.1,9.3c4.1,2.3,8.7,3.6,13.4,3.8c4.7,0.2,9.3-0.8,13.5-2.8c3.5-1.6,6.6-3.9,9-6.9l2.4-3.6c1.3-2,2.9-3.8,4.8-5.3c3.7-3,8.2-4.8,12.8-4.8c4.7,0,9.1,1.8,12.8,4.8c1.9,1.5,3.5,3.3,4.8,5.3l2.4,3.6c2.6,3.8,6,7,10.1,9.3c4.1,2.3,8.7,3.6,13.4,3.8c4.7,0.2,9.3-0.8,13.5-2.8c3.5-1.6,6.6-3.9,9-6.9" transform="translate(100, 250) scale(0.8)" />
               </g>
 
-              {/* Student Figure */}
-              <g transform="translate(150, 200)">
-                {/* Cape */}
-                <path d="M 0,0 C 20,-30 60,-30 80,0 L 40,50 Z" fill="hsl(var(--primary))" transform="rotate(-15)" />
-                {/* Body */}
-                <circle cx="0" cy="0" r="15" fill="hsl(var(--foreground))" />
-                <path d="M 0 15 L 0 50 L -10 60 L 10 60 Z" fill="hsl(var(--foreground))" />
-                {/* Arm */}
-                <path d="M -10 20 L -30 10" stroke="hsl(var(--foreground))" strokeWidth="6" strokeLinecap="round" />
-                 {/* Graduation Cap */}
-                <g transform="translate(0, -18)">
-                  <rect x="-20" y="-5" width="40" height="6" fill="hsl(var(--foreground))" />
-                  <rect x="-5" y="-10" width="10" height="5" fill="hsl(var(--foreground))" />
-                  <path d="M 5 -5 L 15 -10" stroke="hsl(var(--foreground))" strokeWidth="2" />
-                </g>
+              <g id="center-piece" transform="translate(300, 200)">
+                 <circle cx="0" cy="0" r="80" fill="hsl(var(--primary) / 0.1)" />
+                 <circle cx="0" cy="0" r="70" fill="hsl(var(--background))" />
+                 <path d="M-20,0 a20,20 0 1,0 40,0 a20,20 0 1,0 -40,0" fill="hsl(var(--primary))" />
+                 <path d="M-10,0 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" fill="hsl(var(--background))" />
+                 <path d="M-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" fill="hsl(var(--primary))" />
               </g>
 
-              {/* Speed Lines */}
-              <path d="M 50 180 H 120" stroke="hsl(var(--accent))" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
-              <path d="M 70 210 H 130" stroke="hsl(var(--accent))" strokeWidth="1" strokeLinecap="round" opacity="0.6" />
-              <path d="M 60 240 H 110" stroke="hsl(var(--accent))" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
+              <g className="icon-float" style={{ animationDelay: '0s' }} transform="translate(120, 100)">
+                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" stroke-width="2" />
+                <path d="M -10 -5 L 0 -15 L 10 -5 M 0 -15 V 15 M -10 15 H 10" stroke="hsl(var(--accent))" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" />
+              </g>
+
+              <g className="icon-float" style={{ animationDelay: '-2s' }} transform="translate(480, 280)">
+                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" stroke-width="2" />
+                <path d="M -12 0 L 12 0 M 0 -12 V 12 M -8 -8 L 8 8 M -8 8 L 8 -8" stroke="hsl(var(--accent))" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" />
+              </g>
+
+               <g className="icon-float" style={{ animationDelay: '-1s' }} transform="translate(450, 80)">
+                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" stroke-width="2" />
+                <path d="M -10 -10 H 10 V 10 H -10 Z M -10 0 H 10 M 0 -10 V 10" stroke="hsl(var(--accent))" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" />
+              </g>
+
+              <g className="icon-float" style={{ animationDelay: '-3s' }} transform="translate(150, 290)">
+                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" stroke-width="2" />
+                 <path d="M -5 -10 L 15 0 L -5 10 Z" stroke="hsl(var(--accent))" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" />
+              </g>
+
             </svg>
           </div>
 >>>>>>> baa46bc (you added 600 * 400 instead of svg related to our platform)
