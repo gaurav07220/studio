@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -63,54 +64,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-        <Link
-            href="/"
-            className="flex items-center gap-2 text-lg font-semibold md:text-base mr-4"
-        >
-            <BrainCircuit className="h-6 w-6 text-primary" />
-            <span className="sr-only">CareerAI</span>
-        </Link>
-
-        <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-            {mainNavItems.map((item) => (
-                <NavLink key={item.href} href={item.href}>
-                    {item.label}
-                </NavLink>
-            ))}
-        </nav>
-        
-        <div className="flex w-full items-center justify-end gap-4 md:ml-auto md:gap-2 lg:gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="rounded-full">
-                  <Avatar>
-                      <AvatarFallback>U</AvatarFallback>
-                  </Avatar>
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {userMenuItems.map(item => (
-                    <DropdownMenuItem key={item.label} asChild>
-                       <Link href={item.href} className="flex items-center gap-2">
-                            <item.icon className="w-4 h-4"/>
-                            <span>{item.label}</span>
-                       </Link>
-                    </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                    <Link href="#" className="flex items-center gap-2">
-                        <LogOut className="w-4 h-4"/>
-                        <span>Logout</span>
-                    </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
+      <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
+        <div className="flex items-center gap-4">
             <Sheet open={openMobileMenu} onOpenChange={setOpenMobileMenu}>
               <SheetTrigger asChild>
                 <Button
@@ -145,6 +100,55 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </SheetContent>
             </Sheet>
 
+            <Link
+                href="/"
+                className="flex items-center gap-2 text-lg font-semibold"
+            >
+                <BrainCircuit className="h-6 w-6 text-primary" />
+                <span className="hidden sm:inline-block">CareerAI</span>
+            </Link>
+        </div>
+
+        <nav className="hidden flex-1 justify-center md:flex">
+            <div className="flex items-center gap-5 text-sm lg:gap-6">
+                {mainNavItems.map((item) => (
+                    <NavLink key={item.href} href={item.href}>
+                        {item.label}
+                    </NavLink>
+                ))}
+            </div>
+        </nav>
+        
+        <div className="flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="icon" className="rounded-full">
+                  <Avatar>
+                      <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                  <span className="sr-only">Toggle user menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {userMenuItems.map(item => (
+                    <DropdownMenuItem key={item.label} asChild>
+                       <Link href={item.href} className="flex items-center gap-2">
+                            <item.icon className="w-4 h-4"/>
+                            <span>{item.label}</span>
+                       </Link>
+                    </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                    <Link href="#" className="flex items-center gap-2">
+                        <LogOut className="w-4 h-4"/>
+                        <span>Logout</span>
+                    </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </header>
       <main className="flex flex-1 flex-col">{children}</main>
