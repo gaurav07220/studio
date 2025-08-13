@@ -1,10 +1,11 @@
 
 "use client";
-import { FeatureCard } from "@/components/feature-card";
-import { Button } from "@/components/ui/button";
+
 import {
   ArrowRight,
   Briefcase,
+  Check,
+  ClipboardList,
   FileCheck,
   FileText,
   LayoutGrid,
@@ -15,10 +16,12 @@ import {
   UploadCloud,
   Users,
   Wallet,
-  Zap
+  Zap,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { FeatureCard } from "@/components/feature-card";
+import { Button } from "@/components/ui/button";
 
 const features = [
   {
@@ -34,6 +37,13 @@ const features = [
     description:
       "See how your skills stack up against any job description and get suggestions to tailor your application.",
     href: "/job-matcher",
+  },
+  {
+    icon: ClipboardList,
+    title: "AI Interviewer",
+    description:
+        "Practice your interviewing skills with an AI that asks questions based on a job description and provides feedback.",
+    href: "/ai-interviewer",
   },
   {
     icon: Lightbulb,
@@ -103,7 +113,7 @@ const whyPoints = [
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-12 md:gap-20 pb-12" style={{alignItems:'center'}}>
+    <div className="flex flex-col gap-12 md:gap-20 pb-12">
       {/* Hero Section */}
       <section className="pt-8 md:pt-16">
         <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-10 items-center">
@@ -129,18 +139,6 @@ export default function Home() {
               </Button>
             </div>
           </div>
-<<<<<<< HEAD
-          {/* <div className="hidden md:block">
-            <Image
-              src="https://placehold.co/600x400.png"
-              data-ai-hint="career development job search"
-              alt="An illustration showing a person climbing a ladder of success with AI assistance"
-              width={600}
-              height={400}
-              className="rounded-xl shadow-xl"
-            />
-          </div> */}
-=======
           <div className="hidden md:block">
           <svg
               viewBox="0 0 600 400"
@@ -177,11 +175,10 @@ export default function Home() {
                 </style>
               </defs>
               
-              <g id="gears" opacity="0.1">
-                <path className="gear" fill="hsl(var(--primary))" d="M256,218.8c-2.4-3-5.5-5.3-9-6.9c-4.2-2-8.8-3-13.5-2.8c-4.7,0.2-9.3,1.5-13.4,3.8c-4.1,2.3-7.5,5.5-10.1,9.3l-2.4,3.6c-1.3,2-2.9,3.8-4.8,5.3c-3.7,3-8.2,4.8-12.8,4.8c-4.7,0-9.1-1.8-12.8-4.8c-1.9-1.5-3.5-3.3-4.8-5.3l-2.4-3.6c-2.6-3.8-6-7-10.1-9.3c-4.1-2.3-8.7-3.6-13.4-3.8c-4.7-0.2-9.3,0.8-13.5,2.8c-3.5,1.6-6.6,3.9-9,6.9l-2.4,3.6c-1.3,2-2.9,3.8-4.8,5.3c-3.7,3-8.2,4.8-12.8,4.8c-4.7,0-9.1-1.8-12.8-4.8c-1.9-1.5-3.5-3.3-4.8-5.3l-2.4-3.6c-2.6-3.8-6-7-10.1-9.3c-4.1-2.3-8.7-3.6-13.4-3.8c-4.7-0.2-9.3,0.8-13.5,2.8c-3.5,1.6-6.6,3.9-9,6.9" />
-                <path className="gear-reverse" fill="hsl(var(--primary))" d="M512.6,90.4c2.4,3,5.5,5.3,9,6.9c4.2,2,8.8,3,13.5,2.8c4.7-0.2,9.3-1.5,13.4-3.8c4.1-2.3,7.5-5.5,10.1-9.3l2.4-3.6c1.3-2,2.9-3.8,4.8-5.3c3.7-3,8.2-4.8,12.8-4.8c4.7,0,9.1,1.8,12.8,4.8c1.9,1.5,3.5,3.3,4.8,5.3l2.4,3.6c2.6,3.8,6,7,10.1,9.3c4.1,2.3,8.7,3.6,13.4,3.8c4.7,0.2,9.3-0.8,13.5-2.8c3.5-1.6,6.6-3.9,9-6.9l2.4-3.6c1.3-2,2.9-3.8,4.8-5.3c3.7-3,8.2-4.8,12.8-4.8c4.7,0,9.1,1.8,12.8,4.8c1.9,1.5,3.5,3.3,4.8,5.3l2.4,3.6c2.6,3.8,6,7,10.1,9.3c4.1,2.3,8.7,3.6,13.4,3.8c4.7,0.2,9.3-0.8,13.5-2.8c3.5-1.6,6.6-3.9,9-6.9" transform="translate(100, 250) scale(0.8)" />
+              <g id="gears" opacity="0.1" fill="hsl(var(--primary))">
+                <path className="gear" d="M256,218.8c-2.4-3-5.5-5.3-9-6.9c-4.2-2-8.8-3-13.5-2.8c-4.7,0.2-9.3,1.5-13.4,3.8c-4.1,2.3-7.5,5.5-10.1,9.3l-2.4,3.6c-1.3,2-2.9,3.8-4.8,5.3c-3.7,3-8.2,4.8-12.8,4.8c-4.7,0-9.1-1.8-12.8-4.8c-1.9-1.5-3.5-3.3-4.8-5.3l-2.4-3.6c-2.6-3.8-6-7-10.1-9.3c-4.1-2.3-8.7-3.6-13.4-3.8c-4.7-0.2-9.3,0.8-13.5,2.8c-3.5,1.6-6.6,3.9-9,6.9l-2.4,3.6c-1.3,2-2.9,3.8-4.8,5.3c-3.7,3-8.2,4.8-12.8,4.8c-4.7,0-9.1-1.8-12.8-4.8c-1.9-1.5-3.5-3.3-4.8-5.3l-2.4-3.6c-2.6-3.8-6-7-10.1-9.3c-4.1-2.3-8.7-3.6-13.4-3.8c-4.7-0.2-9.3,0.8-13.5,2.8c-3.5,1.6-6.6,3.9-9,6.9" />
+                <path className="gear-reverse" transform="translate(100, 250) scale(0.8)" d="M512.6,90.4c2.4,3,5.5,5.3,9,6.9c4.2,2,8.8,3,13.5,2.8c4.7-0.2,9.3-1.5,13.4-3.8c4.1-2.3,7.5-5.5,10.1-9.3l2.4-3.6c1.3-2,2.9-3.8,4.8-5.3c3.7-3,8.2-4.8,12.8-4.8c4.7,0,9.1,1.8,12.8,4.8c1.9,1.5,3.5,3.3,4.8,5.3l2.4,3.6c2.6,3.8,6,7,10.1,9.3c4.1,2.3,8.7,3.6,13.4,3.8c4.7,0.2,9.3-0.8,13.5-2.8c3.5-1.6,6.6-3.9,9-6.9l2.4-3.6c1.3-2,2.9-3.8,4.8-5.3c3.7-3,8.2-4.8,12.8-4.8c4.7,0,9.1,1.8,12.8,4.8c1.9,1.5,3.5,3.3,4.8,5.3l2.4,3.6c2.6,3.8,6,7,10.1,9.3c4.1,2.3,8.7,3.6,13.4,3.8c4.7,0.2,9.3-0.8,13.5-2.8c3.5-1.6,6.6-3.9,9-6.9" />
               </g>
-
               <g id="center-piece" transform="translate(300, 200)">
                  <circle cx="0" cy="0" r="80" fill="hsl(var(--primary) / 0.1)" />
                  <circle cx="0" cy="0" r="70" fill="hsl(var(--background))" />
@@ -191,28 +188,27 @@ export default function Home() {
               </g>
 
               <g className="icon-float" style={{ animationDelay: '0s' }} transform="translate(120, 100)">
-                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" stroke-width="2" />
-                <path d="M -10 -5 L 0 -15 L 10 -5 M 0 -15 V 15 M -10 15 H 10" stroke="hsl(var(--accent))" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" />
+                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" strokeWidth="2" />
+                <path d="M -10 -5 L 0 -15 L 10 -5 M 0 -15 V 15 M -10 15 H 10" stroke="hsl(var(--accent))" strokeWidth="2.5" fill="none" strokeLinejoin="round" strokeLinecap="round" />
               </g>
 
               <g className="icon-float" style={{ animationDelay: '-2s' }} transform="translate(480, 280)">
-                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" stroke-width="2" />
-                <path d="M -12 0 L 12 0 M 0 -12 V 12 M -8 -8 L 8 8 M -8 8 L 8 -8" stroke="hsl(var(--accent))" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" />
+                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" strokeWidth="2" />
+                <path d="M -12 0 L 12 0 M 0 -12 V 12 M -8 -8 L 8 8 M -8 8 L 8 -8" stroke="hsl(var(--accent))" strokeWidth="2.5" fill="none" strokeLinejoin="round" strokeLinecap="round" />
               </g>
 
                <g className="icon-float" style={{ animationDelay: '-1s' }} transform="translate(450, 80)">
-                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" stroke-width="2" />
-                <path d="M -10 -10 H 10 V 10 H -10 Z M -10 0 H 10 M 0 -10 V 10" stroke="hsl(var(--accent))" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" />
+                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" strokeWidth="2" />
+                <path d="M -10 -10 H 10 V 10 H -10 Z M -10 0 H 10 M 0 -10 V 10" stroke="hsl(var(--accent))" strokeWidth="2.5" fill="none" strokeLinejoin="round" strokeLinecap="round" />
               </g>
 
               <g className="icon-float" style={{ animationDelay: '-3s' }} transform="translate(150, 290)">
-                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" stroke-width="2" />
-                 <path d="M -5 -10 L 15 0 L -5 10 Z" stroke="hsl(var(--accent))" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round" />
+                <circle cx="0" cy="0" r="30" fill="hsl(var(--background))" stroke="hsl(var(--accent))" strokeWidth="2" />
+                 <path d="M -5 -10 L 15 0 L -5 10 Z" stroke="hsl(var(--accent))" strokeWidth="2.5" fill="none" strokeLinejoin="round" strokeLinecap="round" />
               </g>
 
             </svg>
           </div>
->>>>>>> baa46bc (you added 600 * 400 instead of svg related to our platform)
         </div>
       </section>
 
@@ -305,3 +301,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
