@@ -1,10 +1,11 @@
 
 "use client";
-import { FeatureCard } from "@/components/feature-card";
-import { Button } from "@/components/ui/button";
+
 import {
   ArrowRight,
   Briefcase,
+  Check,
+  ClipboardList,
   FileCheck,
   FileText,
   LayoutGrid,
@@ -15,10 +16,12 @@ import {
   UploadCloud,
   Users,
   Wallet,
-  ClipboardList
+  Zap,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { FeatureCard } from "@/components/feature-card";
+import { Button } from "@/components/ui/button";
 
 const features = [
   {
@@ -110,7 +113,7 @@ const whyPoints = [
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-12 md:gap-20 pb-12" style={{alignItems:'center'}}>
+    <div className="flex flex-col gap-12 md:gap-20 pb-12">
       {/* Hero Section */}
       <section className="pt-8 md:pt-16">
         <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-10 items-center">
@@ -298,3 +301,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

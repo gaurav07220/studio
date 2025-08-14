@@ -66,6 +66,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [openMobileMenu, setOpenMobileMenu] = React.useState(false);
   const { user, loading, signOut } = useAuth();
 
+  const handleSignOut = () => {
+      // For demonstration, we'll just log out. 
+      // In a real app, you might redirect to a login page.
+      signOut();
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
@@ -146,7 +152,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="cursor-pointer">
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                     <div className="flex items-center gap-2">
                         <LogOut className="w-4 h-4"/>
                         <span>Logout</span>

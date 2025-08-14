@@ -4,16 +4,14 @@
 import {
   createContext,
   useState,
-  useEffect,
   useContext,
   ReactNode,
 } from "react";
-import {
-  User,
-  onAuthStateChanged,
-  signOut as firebaseSignOut,
-} from "firebase/auth";
-import { auth } from "@/lib/firebase";
+
+// Mock user type
+interface User {
+  email: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -24,20 +22,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
+  // Simulate a logged-in user for demonstration purposes
+  const [user, setUser] = useState<User | null>({ email: 'user@example.com' });
+  const [loading, setLoading] = useState(false);
 
   const signOut = async () => {
-    await firebaseSignOut(auth);
     setUser(null);
   };
 

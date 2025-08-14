@@ -3,9 +3,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,25 +20,16 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const { toast } = useToast();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      toast({ title: "Account created successfully!" });
-      router.push("/");
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Signup Failed",
-        description: error instanceof Error ? error.message : "An unknown error occurred.",
-      });
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
       setLoading(false);
-    }
+      toast({ title: "Signup functionality is for demonstration only." });
+    }, 1000);
   };
 
   return (
