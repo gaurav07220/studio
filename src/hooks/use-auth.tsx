@@ -10,7 +10,16 @@ import {
 
 // Mock user type
 interface User {
+  uid?: string;
   email: string;
+  fullName?: string;
+  phone?: string;
+  linkedin?: string;
+  jobRole?: string;
+  headline?: string;
+  summary?: string;
+  portfolio?: string;
+  avatar?: string;
 }
 
 interface AuthContextType {

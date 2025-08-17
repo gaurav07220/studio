@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
@@ -21,15 +24,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       setLoading(false);
-      toast({ title: "Login functionality is for demonstration only." });
-    }, 1000);
+      toast({ title: "Login successful!", description: `Welcome back, ${userCredential.user.email}` });
+      setEmail("");
+      setPassword("");
+      router.push("/resume-analyzer");
+    } catch (error: any) {
+      setLoading(false);
+      toast({ title: "Login failed", description: error.message });
+    }
   };
 
   return (

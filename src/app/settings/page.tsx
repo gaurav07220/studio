@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function SettingsPage() {
   return (
-    <div className="p-4 md:p-8 flex flex-col gap-8 max-w-3xl mx-auto">
+    <div className="p-4 md:p-8 flex flex-col gap-8">
       <header>
         <h1 className="font-headline text-4xl font-bold tracking-tight">
           Settings

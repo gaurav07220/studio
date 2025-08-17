@@ -113,7 +113,7 @@ const whyPoints = [
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-12 md:gap-20 pb-12">
+    <div className="flex flex-col gap-12 md:gap-20 pb-12" style={{margin:'auto'}}>
       {/* Hero Section */}
       <section className="pt-8 md:pt-16">
         <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-10 items-center">

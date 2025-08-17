@@ -14,22 +14,50 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { auth, db } from "@/lib/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [linkedin, setLinkedin] = useState("");
+  const [jobRole, setJobRole] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Store additional user details in Firestore
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        fullName,
+        email,
+        phone,
+        linkedin,
+        jobRole,
+        createdAt: new Date().toISOString(),
+      });
       setLoading(false);
-      toast({ title: "Signup functionality is for demonstration only." });
-    }, 1000);
+      toast({
+        title: "Signup successful!",
+        description: `Welcome, ${fullName || userCredential.user.email}!\nPhone: ${phone}\nLinkedIn: ${linkedin}\nJob Role: ${jobRole}`,
+      });
+      setEmail("");
+      setPassword("");
+      setFullName("");
+      setPhone("");
+      setLinkedin("");
+      setJobRole("");
+    } catch (error: any) {
+      setLoading(false);
+      toast({ title: "Signup failed", description: error.message });
+    }
   };
 
   return (
@@ -43,6 +71,17 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                type="text"
+                placeholder="Your full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <Input
@@ -63,6 +102,36 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="123-456-7890"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
+              <Input
+                id="linkedin"
+                type="url"
+                placeholder="https://linkedin.com/in/yourprofile"
+                value={linkedin}
+                onChange={(e) => setLinkedin(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="jobRole">Job Role</Label>
+              <Input
+                id="jobRole"
+                type="text"
+                placeholder="e.g. Software Engineer"
+                value={jobRole}
+                onChange={(e) => setJobRole(e.target.value)}
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
