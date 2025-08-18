@@ -12,13 +12,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const CoverLetterGeneratorInputSchema = z.object({
+const CoverLetterGeneratorInputSchema = z.object({
   resumeText: z.string().describe('The full text of the user\'s resume.'),
   jobDescriptionText: z.string().describe('The full text of the job description.'),
 });
 export type CoverLetterGeneratorInput = z.infer<typeof CoverLetterGeneratorInputSchema>;
 
-export const CoverLetterGeneratorOutputSchema = z.object({
+const CoverLetterGeneratorOutputSchema = z.object({
   coverLetter: z.string().describe('The generated personalized cover letter text.'),
 });
 export type CoverLetterGeneratorOutput = z.infer<typeof CoverLetterGeneratorOutputSchema>;
