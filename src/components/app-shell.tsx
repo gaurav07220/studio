@@ -12,9 +12,9 @@ import {
   User,
   DollarSign,
   LogOut,
-  PenSquare,
+  LogIn,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CareerCoachWidget } from "@/components/career-coach-widget";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
@@ -43,7 +43,10 @@ const userMenuItems = [
     { href: "/profile", label: "Profile", icon: User },
     { href: "/settings", label: "Settings", icon: Settings },
     { href: "/pricing", label: "Pricing", icon: DollarSign },
-    { href: "#", label: "Help & Support", icon: HelpCircle },
+];
+
+const helpMenuItems = [
+     { href: "#", label: "Help & Support", icon: HelpCircle },
 ]
 
 const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
@@ -66,6 +69,13 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [openMobileMenu, setOpenMobileMenu] = React.useState(false);
   const { user, loading, signOut } = useAuth();
+  const pathname = usePathname();
+
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
+
+  if (isAuthPage) {
+    return <main className="flex-1">{children}</main>
+  }
 
   const handleSignOut = () => {
       signOut();
@@ -89,13 +99,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <SheetContent side="left">
                 <nav className="grid gap-6 text-lg font-medium">
                   <Link
-                    href="#"
+                    href="/"
                     className="flex items-center gap-2 text-lg font-semibold mb-4"
                   >
                     <BrainCircuit className="h-6 w-6 text-primary" />
                     <span>CareerAI</span>
                   </Link>
-                  {[...mainNavItems, ...userMenuItems.filter(item => item.href !== '/profile' && item.href !== '/settings')].map((item) => (
+                  {mainNavItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="text-muted-foreground hover:text-foreground"
+                      onClick={() => setOpenMobileMenu(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                  <DropdownMenuSeparator />
+                   {userMenuItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
@@ -129,7 +150,52 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
         
         <div className="flex items-center gap-4">
-          {/* All user auth related UI is removed */}
+            {loading ? (
+                <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+            ) : user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                       <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} data-ai-hint="user avatar" />
+                       <AvatarFallback>{user.email?.[0]?.toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">Signed In</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    {userMenuItems.map((item) => (
+                        <DropdownMenuItem key={item.href} asChild>
+                            <Link href={item.href}>
+                                <item.icon className="mr-2 h-4 w-4"/>
+                                {item.label}
+                            </Link>
+                        </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+                <Button asChild>
+                    <Link href="/login">
+                        Login <LogIn className="ml-2"/>
+                    </Link>
+                </Button>
+            )}
         </div>
       </header>
       <main className="flex flex-1 flex-col">{children}</main>

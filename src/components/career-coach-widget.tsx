@@ -18,8 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-// ✅ Import markdown & sanitizer
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 
@@ -27,6 +25,14 @@ interface Message {
   role: "user" | "assistant";
   content: string;
 }
+
+const createMarkup = (markdownText: string) => {
+  if (typeof window !== 'undefined') {
+    const dirty = marked.parse(markdownText, { breaks: true }) as string;
+    return { __html: DOMPurify.sanitize(dirty) };
+  }
+  return { __html: "" };
+};
 
 export function CareerCoachWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -66,16 +72,9 @@ export function CareerCoachWidget() {
     startTransition(async () => {
       try {
         const res = await careerCoachChatbot({ query: currentInput });
-
-        // ✅ Make AI output human-readable
-        const responseText = await res.response;
-        const cleanHTML = DOMPurify.sanitize(
-          marked((await responseText) || "", { breaks: true })
-        );
-
         const assistantMessage: Message = {
           role: "assistant",
-          content: cleanHTML,
+          content: res.response,
         };
         setMessages((prev) => [...prev, assistantMessage]);
       } catch (error) {
@@ -154,13 +153,13 @@ export function CareerCoachWidget() {
                         "max-w-xs rounded-lg px-3 py-2 text-sm",
                         message.role === "user"
                           ? "bg-primary text-primary-foreground rounded-br-none"
-                          : "bg-card border rounded-bl-none prose prose-sm"
+                          : "bg-muted rounded-bl-none"
                       )}
                     >
-                      {/* ✅ Render markdown as HTML */}
                       {message.role === "assistant" ? (
                         <div
-                          dangerouslySetInnerHTML={{ __html: message.content }}
+                         className="prose prose-sm max-w-none"
+                          dangerouslySetInnerHTML={createMarkup(message.content)}
                         />
                       ) : (
                         <p className="whitespace-pre-wrap">{message.content}</p>
@@ -175,14 +174,14 @@ export function CareerCoachWidget() {
                     )}
                   </div>
                 ))}
-                {isPending && (
+                {isPending && messages[messages.length-1]?.role === 'user' && (
                   <div className="flex items-start gap-3 justify-start">
                     <Avatar className="h-6 w-6">
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         <BrainCircuit className="h-4 w-4" />
                       </AvatarFallback>
                     </Avatar>
-                    <div className="max-w-xs rounded-lg p-3 bg-card border flex items-center">
+                    <div className="max-w-xs rounded-lg p-3 bg-muted flex items-center">
                       <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                     </div>
                   </div>
