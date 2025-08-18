@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 const assessments = [
     {
@@ -59,6 +60,15 @@ const assessments = [
 ]
 
 export default function AssessmentsPage() {
+  const { toast } = useToast();
+
+  const handleStartTest = (title: string) => {
+    toast({
+        title: "Feature Not Implemented",
+        description: `The "${title}" assessment is for demonstration purposes only.`
+    })
+  }
+
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
       <header>
@@ -88,7 +98,7 @@ export default function AssessmentsPage() {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button className="w-full">
+                    <Button className="w-full" onClick={() => handleStartTest(assessment.title)}>
                         Start {assessment.type} Test
                         <ArrowRight className="ml-2"/>
                     </Button>
