@@ -34,7 +34,7 @@ export type UpskillingRecommenderInput = z.infer<
 const UpskillingRecommenderOutputSchema = z.object({
   courseRecommendations: z
     .string()
-    .describe('Recommended courses to bridge the skill gaps.'),
+    .describe('Recommended courses to bridge the skill gaps. For each course, provide a name, the platform (e.g., Coursera, Udemy), and a brief description.'),
   certificationRecommendations: z
     .string()
     .describe('Recommended certifications to enhance career prospects.'),
@@ -68,9 +68,15 @@ Career Goals: {{{careerGoals}}}
 Preferred Learning Platforms: {{{preferredPlatforms}}}
 {{/if}}
 
-Consider platforms like Coursera, Udemy, edX, and LinkedIn Learning when making recommendations.
+Your Task:
+1.  **Recommend Courses**: Suggest 2-3 specific courses from well-known platforms like Coursera, Udemy, edX, or LinkedIn Learning that directly address the user's skill gaps. For each course, provide:
+    *   **Course Name:** The full name of the course.
+    *   **Platform:** Where to find it (e.g., Coursera, Udemy).
+    *   **Description:** A brief, compelling summary of what the user will learn.
+2.  **Recommend Certifications**: Suggest 1-2 relevant professional certifications that align with the user's career goals.
+3.  **Provide Additional Resources**: If applicable, suggest other learning materials like books, blogs, or tutorials.
 
-Format your output clearly, separating course recommendations, certification recommendations, and any additional helpful resources.`,
+Format your output clearly with Markdown, using headings for each section (e.g., ## Course Recommendations).`,
 });
 
 const upskillingRecommenderFlow = ai.defineFlow(
