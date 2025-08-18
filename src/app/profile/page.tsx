@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Award, Upload } from "lucide-react";
+import { Award, Upload, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function ProfilePage() {
@@ -54,7 +54,7 @@ export default function ProfilePage() {
                 <CardContent className="space-y-4">
                      <div className="space-y-2">
                         <Label htmlFor="headline">Professional Headline</Label>
-                        <Input id="headline" placeholder="e.g., Senior Software Engineer at TechCorp" />
+                        <Input id="headline" placeholder="e.g., Senior Software Engineer at TechCorp" defaultValue="Aspiring Full-Stack Developer"/>
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="summary">Professional Summary</Label>
@@ -79,7 +79,7 @@ export default function ProfilePage() {
                 </CardHeader>
                 <CardContent className="flex flex-col items-center gap-4">
                     <Avatar className="w-32 h-32">
-                        <AvatarImage src="https://placehold.co/128x128.png" data-ai-hint="user avatar" />
+                        <AvatarImage src="https://i.pravatar.cc/150?u=alexdoe" data-ai-hint="user avatar" />
                         <AvatarFallback>AD</AvatarFallback>
                     </Avatar>
                      <Button variant="outline">
@@ -92,9 +92,18 @@ export default function ProfilePage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Achievements</CardTitle>
-                    <CardDescription>Your earned certificates and badges.</CardDescription>
+                    <CardDescription>Your earned points, certificates and badges.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                     <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                            <Star className="w-8 h-8 text-primary" />
+                            <div>
+                                <h4 className="font-semibold">Total Points</h4>
+                                <p className="text-sm font-bold text-primary">1,250</p>
+                            </div>
+                        </div>
+                    </div>
                     <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
                         <div className="flex items-center gap-3">
                             <Award className="w-8 h-8 text-yellow-500" />
