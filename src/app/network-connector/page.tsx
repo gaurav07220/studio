@@ -2,8 +2,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from 'next/link';
-import { Users, Loader2, Linkedin, ArrowRight, UserSearch } from "lucide-react";
+import { Users, Loader2, Linkedin, UserSearch } from "lucide-react";
 import { generateNetworkingRecommendations, type NetworkingRecommendationsOutput } from "@/ai/flows/network-connector";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +11,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -168,9 +166,9 @@ export default function NetworkConnectorPage() {
                             <p className="text-xs text-muted-foreground mt-2 italic">"{person.reason}"</p>
                         </div>
                         <Button asChild variant="outline" size="sm">
-                            <Link href={person.linkedinUrl} target="_blank" rel="noopener noreferrer">
+                            <a href={person.linkedinUrl} target="_blank" rel="noopener noreferrer">
                                 <Linkedin className="mr-2"/> View Profile
-                            </Link>
+                            </a>
                         </Button>
                     </div>
                 </Card>
