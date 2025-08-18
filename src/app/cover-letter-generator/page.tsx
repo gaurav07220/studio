@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { PenSquare, Loader2, Clipboard } from "lucide-react";
+import { PenSquare, Loader2, Clipboard, Send } from "lucide-react";
 import { generateCoverLetter } from "@/ai/flows/cover-letter-generator";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,6 +58,13 @@ export default function CoverLetterGeneratorPage() {
         toast({ title: "Copied to clipboard!" });
     }
   }
+
+  const handleSendToEmail = () => {
+    toast({
+      title: "Feature not available",
+      description: "Email sending is for demonstration purposes only.",
+    });
+  };
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
@@ -146,10 +153,14 @@ export default function CoverLetterGeneratorPage() {
               onChange={(e) => setResult(e.target.value)}
             />
           </CardContent>
-          <CardFooter>
+          <CardFooter className="gap-2">
             <Button onClick={handleCopyToClipboard}>
                 <Clipboard className="mr-2" />
                 Copy to Clipboard
+            </Button>
+            <Button onClick={handleSendToEmail} variant="secondary">
+              <Send className="mr-2" />
+              Send to Email
             </Button>
           </CardFooter>
         </Card>
