@@ -18,6 +18,7 @@ import {
   Wallet,
   Zap,
   Award,
+  ShieldCheck,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -75,11 +76,11 @@ const features = [
     href: "/network-connector",
   },
   {
-    icon: MessageSquare,
-    title: "AI Career Coach",
+    icon: ShieldCheck,
+    title: "Community Hub",
     description:
-      "Chat 24/7 with an AI coach for resume tips, job search strategies, and interview preparation.",
-    href: "/career-coach",
+      "Engage with peers, climb the leaderboard, and get job referrals to stay ahead.",
+    href: "/community",
   },
   {
     icon: TrendingUp,

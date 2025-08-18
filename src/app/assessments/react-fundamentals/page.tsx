@@ -14,22 +14,26 @@ const questions = [
   {
     question: "What is the correct way to pass a value from a parent component to a child component in React?",
     options: ["Using props", "Using state", "Using context", "Using refs"],
-    answer: "Using props"
+    answer: "Using props",
+    points: 10,
   },
   {
     question: "Which hook is used to manage state in a functional component?",
     options: ["useEffect", "useState", "useContext", "useReducer"],
-    answer: "useState"
+    answer: "useState",
+    points: 10,
   },
   {
     question: "What does JSX stand for?",
     options: ["JavaScript XML", "JavaScript Extension", "Java Syntax Extension", "JSON Scripting Extension"],
-    answer: "JavaScript XML"
+    answer: "JavaScript XML",
+    points: 10,
   },
   {
     question: "In React, what is used to handle side effects like data fetching or subscriptions?",
     options: ["useState", "useCallback", "useEffect", "useMemo"],
-    answer: "useEffect"
+    answer: "useEffect",
+    points: 10,
   },
   {
     question: "What is the purpose of a `key` prop when rendering a list of elements?",
@@ -39,7 +43,8 @@ const questions = [
         "It is used for styling the elements.", 
         "It is required for accessibility."
     ],
-    answer: "It helps React identify which items have changed, are added, or are removed."
+    answer: "It helps React identify which items have changed, are added, or are removed.",
+    points: 10,
   }
 ];
 
@@ -47,12 +52,14 @@ export default function ReactFundamentalsTestPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [score, setScore] = useState(0);
+  const [points, setPoints] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const { toast } = useToast();
 
   const handleNextQuestion = () => {
     if (selectedAnswer === questions[currentQuestionIndex].answer) {
       setScore(score + 1);
+      setPoints(points + (questions[currentQuestionIndex].points || 0));
     }
     setSelectedAnswer(null);
     setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -60,14 +67,17 @@ export default function ReactFundamentalsTestPage() {
 
   const handleSubmit = () => {
     let finalScore = score;
+    let finalPoints = points;
     if (selectedAnswer === questions[currentQuestionIndex].answer) {
         finalScore = score + 1;
+        finalPoints = points + (questions[currentQuestionIndex].points || 0);
     }
     setScore(finalScore);
+    setPoints(finalPoints);
     setIsFinished(true);
     toast({
         title: "Assessment Complete!",
-        description: `You scored ${finalScore} out of ${questions.length}. A certificate has been added to your profile.`,
+        description: `You scored ${finalScore} out of ${questions.length} and earned ${finalPoints} points. A certificate has been added to your profile.`,
         duration: 5000,
     });
   }
@@ -76,6 +86,7 @@ export default function ReactFundamentalsTestPage() {
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
     setScore(0);
+    setPoints(0);
     setIsFinished(false);
   }
   
@@ -90,8 +101,9 @@ export default function ReactFundamentalsTestPage() {
                     <CardTitle className="text-2xl mt-4">Congratulations!</CardTitle>
                     <CardDescription>You have completed the React.js Fundamentals Assessment.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-2">
                     <p className="text-4xl font-bold">Your Score: {score}/{questions.length}</p>
+                    <p className="text-lg text-muted-foreground">You earned <span className="font-bold text-primary">{points}</span> points!</p>
                     <p className="mt-2 text-muted-foreground">This achievement has been added to your profile.</p>
                 </CardContent>
                 <CardFooter className="justify-center">
@@ -136,6 +148,3 @@ export default function ReactFundamentalsTestPage() {
     </div>
   );
 }
-
-// Added an empty export to satisfy Next.js module requirements if no other exports exist
-export {};

@@ -13,7 +13,8 @@ import {
   DollarSign,
   LogOut,
   LogIn,
-  Award
+  Award,
+  ShieldCheck,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CareerCoachWidget } from "@/components/career-coach-widget";
@@ -34,13 +35,17 @@ import { useAuth } from "@/hooks/use-auth";
 const mainNavItems = [
   { href: "/resume-analyzer", label: "Resume Analyzer" },
   { href: "/job-matcher", label: "Job Matcher" },
-  { href: "/cover-letter-generator", label: "Cover Letter" },
   { href: "/ai-interviewer", label: "AI Interviewer" },
   { href: "/assessments", label: "Assessments" },
-  { href: "/network-connector", label: "Network Connector" },
-  { href: "/upskilling-recommender", label: "Upskilling" },
+  { href: "/community", label: "Community" },
   { href: "/job-market", label: "Job Market" },
 ];
+
+const moreNavItems = [
+  { href: "/cover-letter-generator", label: "Cover Letter" },
+  { href: "/network-connector", label: "Network Connector" },
+  { href: "/upskilling-recommender", label: "Upskilling" },
+]
 
 const userMenuItems = [
     { href: "/profile", label: "Profile", icon: User },
@@ -108,7 +113,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     <BrainCircuit className="h-6 w-6 text-primary" />
                     <span>CareerAI</span>
                   </Link>
-                  {mainNavItems.map((item) => (
+                  {[...mainNavItems, ...moreNavItems].map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
@@ -149,6 +154,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         {item.label}
                     </NavLink>
                 ))}
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="text-foreground/60 focus:bg-transparent focus:text-primary">More</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        {moreNavItems.map((item) => (
+                             <DropdownMenuItem key={item.href} asChild>
+                                <Link href={item.href}>{item.label}</Link>
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </nav>
         
