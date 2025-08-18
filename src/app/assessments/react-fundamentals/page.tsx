@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Award, Check, X, Loader2, ArrowRight } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/hooks/use-auth';
 
 const questions = [
   {
@@ -55,6 +56,7 @@ export default function ReactFundamentalsTestPage() {
   const [points, setPoints] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const { toast } = useToast();
+  const { addPoints, addAchievement } = useAuth();
 
   const handleNextQuestion = () => {
     if (selectedAnswer === questions[currentQuestionIndex].answer) {
@@ -75,6 +77,15 @@ export default function ReactFundamentalsTestPage() {
     setScore(finalScore);
     setPoints(finalPoints);
     setIsFinished(true);
+
+    // Add points and achievement to user's profile
+    addPoints(finalPoints);
+    addAchievement({
+        id: 'react-fundamentals',
+        name: 'React.js Fundamentals',
+        type: 'Certificate',
+    });
+
     toast({
         title: "Assessment Complete!",
         description: `You scored ${finalScore} out of ${questions.length} and earned ${finalPoints} points. A certificate has been added to your profile.`,

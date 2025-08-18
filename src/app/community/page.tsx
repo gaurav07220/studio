@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
 
 const leaderboardUsers = [
   { rank: 1, name: "Elena Volkova", points: 2450, avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d" },
@@ -22,14 +23,12 @@ const leaderboardUsers = [
   { rank: 5, name: "Sofia Rossi", points: 2010, avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704h" },
 ];
 
-const currentUser = {
-    rank: 15,
-    name: "Alex Doe",
-    points: 1250,
-    avatar: "https://i.pravatar.cc/150?u=alexdoe"
-}
-
 export default function CommunityPage() {
+  const { user } = useAuth();
+  
+  // Note: The rank is static for now. A real implementation would fetch this from a backend.
+  const currentUserRank = 15;
+
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
       <header>
@@ -50,36 +49,38 @@ export default function CommunityPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-2">
-                        <Card className="bg-primary/10 border-primary shadow-lg">
-                           <div className="flex items-center gap-4 p-4">
-                               <span className="font-bold text-lg w-6 text-center text-primary">{currentUser.rank}</span>
-                               <Avatar className="h-12 w-12 border-2 border-primary">
-                                   <AvatarImage src={currentUser.avatar} data-ai-hint="user avatar" />
-                                   <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
-                               </Avatar>
-                               <div className="flex-1">
-                                   <p className="font-bold text-lg text-primary">{currentUser.name} (You)</p>
-                                   <p className="text-sm text-primary/80">Your current standing</p>
+                        {user && (
+                            <Card className="bg-primary/10 border-primary shadow-lg">
+                               <div className="flex items-center gap-4 p-4">
+                                   <span className="font-bold text-lg w-6 text-center text-primary">{currentUserRank}</span>
+                                   <Avatar className="h-12 w-12 border-2 border-primary">
+                                       <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} data-ai-hint="user avatar" />
+                                       <AvatarFallback>{user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                                   </Avatar>
+                                   <div className="flex-1">
+                                       <p className="font-bold text-lg text-primary">{user.email.split('@')[0]} (You)</p>
+                                       <p className="text-sm text-primary/80">Your current standing</p>
+                                   </div>
+                                   <Badge className="font-bold text-base bg-primary text-primary-foreground">
+                                       {user.points.toLocaleString()} pts
+                                   </Badge>
                                </div>
-                               <Badge className="font-bold text-base bg-primary text-primary-foreground">
-                                   {currentUser.points.toLocaleString()} pts
-                               </Badge>
-                           </div>
-                        </Card>
+                            </Card>
+                        )}
                         <ul className="pt-2 space-y-2">
-                            {leaderboardUsers.map((user) => (
-                                <li key={user.rank} className="flex items-center gap-4 p-3 rounded-md transition-all hover:bg-muted hover:scale-[1.02]">
-                                    <span className={cn("font-bold text-lg w-6 text-center", user.rank <= 3 ? "text-primary" : "text-muted-foreground")}>{user.rank}</span>
+                            {leaderboardUsers.map((leaderboardUser) => (
+                                <li key={leaderboardUser.rank} className="flex items-center gap-4 p-3 rounded-md transition-all hover:bg-muted hover:scale-[1.02]">
+                                    <span className={cn("font-bold text-lg w-6 text-center", leaderboardUser.rank <= 3 ? "text-primary" : "text-muted-foreground")}>{leaderboardUser.rank}</span>
                                     <Avatar className="h-10 w-10">
-                                        <AvatarImage src={user.avatar} data-ai-hint="user avatar" />
-                                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                        <AvatarImage src={leaderboardUser.avatar} data-ai-hint="user avatar" />
+                                        <AvatarFallback>{leaderboardUser.name.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1">
-                                        <p className="font-semibold">{user.name}</p>
+                                        <p className="font-semibold">{leaderboardUser.name}</p>
                                     </div>
-                                    <Badge variant={user.rank === 1 ? "default" : "secondary"} className="font-bold">
-                                        {user.rank === 1 && <Crown className="w-4 h-4 mr-2 text-yellow-400" />}
-                                        {user.points.toLocaleString()} pts
+                                    <Badge variant={leaderboardUser.rank === 1 ? "default" : "secondary"} className="font-bold">
+                                        {leaderboardUser.rank === 1 && <Crown className="w-4 h-4 mr-2 text-yellow-400" />}
+                                        {leaderboardUser.points.toLocaleString()} pts
                                     </Badge>
                                 </li>
                             ))}
