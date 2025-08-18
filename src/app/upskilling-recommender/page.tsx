@@ -187,6 +187,7 @@ export default function UpskillingRecommenderPage() {
               ))}
             </CardContent>
           </Card>
+          {result.certificationRecommendations && (
           <Card>
             <CardHeader>
               <CardTitle><GraduationCap className="inline-block mr-2" />Certification Recommendations</CardTitle>
@@ -195,6 +196,7 @@ export default function UpskillingRecommenderPage() {
               <div className="prose prose-sm max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: result.certificationRecommendations.replace(/\n/g, '<br>') }}/>
             </CardContent>
           </Card>
+          )}
           {result.additionalResources && (
             <Card>
               <CardHeader>
