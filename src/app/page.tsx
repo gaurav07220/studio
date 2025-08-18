@@ -17,6 +17,7 @@ import {
   Users,
   Wallet,
   Zap,
+  Award,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -51,6 +52,13 @@ const features = [
     description:
         "Practice your interviewing skills with an AI that asks questions based on a job description and provides feedback.",
     href: "/ai-interviewer",
+  },
+  {
+    icon: Award,
+    title: "Skill Assessments",
+    description:
+        "Prove your skills by taking coding challenges and MCQ tests to earn badges for your profile.",
+    href: "/assessments",
   },
   {
     icon: Lightbulb,

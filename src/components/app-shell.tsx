@@ -13,6 +13,7 @@ import {
   DollarSign,
   LogOut,
   LogIn,
+  Award
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CareerCoachWidget } from "@/components/career-coach-widget";
@@ -22,6 +23,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -34,6 +36,7 @@ const mainNavItems = [
   { href: "/job-matcher", label: "Job Matcher" },
   { href: "/cover-letter-generator", label: "Cover Letter" },
   { href: "/ai-interviewer", label: "AI Interviewer" },
+  { href: "/assessments", label: "Assessments" },
   { href: "/network-connector", label: "Network Connector" },
   { href: "/upskilling-recommender", label: "Upskilling" },
   { href: "/job-market", label: "Job Market" },

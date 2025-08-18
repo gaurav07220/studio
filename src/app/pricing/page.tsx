@@ -41,15 +41,28 @@ const tiers = [
     popular: true,
   },
   {
+    name: "Team",
+    price: "$45",
+    description: "For bootcamps, colleges & hiring partners.",
+    features: [
+        "All Pro features",
+        "Up to 5 seats included",
+        "Team-based analytics",
+        "Priority Support",
+    ],
+    cta: "Get Started with Team",
+    popular: false,
+  },
+  {
     name: "Enterprise",
     price: "Contact Us",
-    description: "For teams and organizations.",
+    description: "For large-scale teams and organizations.",
     features: [
-      "All Pro features",
-      "Team management",
+      "All Team features",
+      "Custom number of seats",
       "Custom branding",
-      "Dedicated support",
-      "Usage analytics",
+      "Dedicated account manager",
+      "Usage analytics API",
     ],
     cta: "Contact Sales",
     popular: false,
@@ -68,7 +81,7 @@ export default function PricingPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start max-w-5xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 items-start max-w-7xl mx-auto">
         {tiers.map((tier) => (
           <Card
             key={tier.name}
