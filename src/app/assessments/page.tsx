@@ -2,6 +2,7 @@
 "use client";
 
 import { Award, ArrowRight, Code, ListChecks } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,53 +21,61 @@ const assessments = [
         type: "MCQ",
         icon: ListChecks,
         description: "Test your knowledge of core React concepts like components, state, props, and hooks.",
-        tags: ["Frontend", "JavaScript", "React"]
+        tags: ["Frontend", "JavaScript", "React"],
+        href: "/assessments/react-fundamentals"
     },
     {
         title: "Python Data Structures Challenge",
         type: "Coding",
         icon: Code,
         description: "Solve a series of challenges involving lists, dictionaries, sets, and tuples in Python.",
-        tags: ["Backend", "Python", "Data Structures"]
+        tags: ["Backend", "Python", "Data Structures"],
+        href: "#"
     },
     {
         title: "SQL Query Master",
         type: "MCQ",
         icon: ListChecks,
         description: "Assess your ability to write complex SQL queries, including joins, subqueries, and window functions.",
-        tags: ["Data", "SQL", "Database"]
+        tags: ["Data", "SQL", "Database"],
+        href: "#"
     },
      {
         title: "JavaScript Algorithm Practice",
         type: "Coding",
         icon: Code,
         description: "A timed coding challenge to test your problem-solving skills with common algorithms.",
-        tags: ["Frontend", "JavaScript", "Algorithms"]
+        tags: ["Frontend", "JavaScript", "Algorithms"],
+        href: "#"
     },
     {
         title: "AWS Certified Cloud Practitioner (Practice)",
         type: "MCQ",
         icon: ListChecks,
         description: "A practice exam to prepare you for the AWS Certified Cloud Practitioner certification.",
-        tags: ["Cloud", "AWS", "DevOps"]
+        tags: ["Cloud", "AWS", "DevOps"],
+        href: "#"
     },
      {
         title: "CSS Layout Challenge",
         type: "Coding",
         icon: Code,
         description: "Fix broken CSS layouts and demonstrate your mastery of Flexbox and Grid.",
-        tags: ["Frontend", "CSS", "UI"]
+        tags: ["Frontend", "CSS", "UI"],
+        href: "#"
     }
 ]
 
 export default function AssessmentsPage() {
   const { toast } = useToast();
 
-  const handleStartTest = (title: string) => {
-    toast({
-        title: "Feature Not Implemented",
-        description: `The "${title}" assessment is for demonstration purposes only.`
-    })
+  const handleStartTest = (title: string, href: string) => {
+    if (href === "#") {
+        toast({
+            title: "Feature Not Implemented",
+            description: `The "${title}" assessment is for demonstration purposes only.`
+        });
+    }
   }
 
   return (
@@ -98,9 +107,18 @@ export default function AssessmentsPage() {
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button className="w-full" onClick={() => handleStartTest(assessment.title)}>
-                        Start {assessment.type} Test
-                        <ArrowRight className="ml-2"/>
+                    <Button asChild={assessment.href !== '#'} className="w-full" onClick={() => handleStartTest(assessment.title, assessment.href)}>
+                        {assessment.href !== '#' ? (
+                            <Link href={assessment.href}>
+                                Start {assessment.type} Test
+                                <ArrowRight className="ml-2"/>
+                            </Link>
+                        ) : (
+                            <>
+                                Start {assessment.type} Test
+                                <ArrowRight className="ml-2"/>
+                            </>
+                        )}
                     </Button>
                 </CardFooter>
             </Card>
