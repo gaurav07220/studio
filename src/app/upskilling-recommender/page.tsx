@@ -20,6 +20,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 
 export default function UpskillingRecommenderPage() {
@@ -68,6 +70,14 @@ export default function UpskillingRecommenderPage() {
       }
     });
   };
+  
+  const createMarkup = (markdownText?: string) => {
+    if (typeof window !== 'undefined' && markdownText) {
+      const dirty = marked(markdownText, { breaks: true });
+      return { __html: DOMPurify.sanitize(dirty as string) };
+    }
+    return { __html: "" };
+  }
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
@@ -147,7 +157,7 @@ export default function UpskillingRecommenderPage() {
             <Card>
                 <CardHeader>
                     <CardTitle><div className="h-6 bg-muted rounded w-1/3 animate-pulse"></div></CardTitle>
-                </CardHeader>
+                </Header>
                 <CardContent className="space-y-2">
                     <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
                     <div className="h-4 bg-muted rounded w-5/6 animate-pulse"></div>
@@ -193,7 +203,7 @@ export default function UpskillingRecommenderPage() {
               <CardTitle><GraduationCap className="inline-block mr-2" />Certification Recommendations</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose prose-sm max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: result.certificationRecommendations.replace(/\n/g, '<br>') }}/>
+              <div className="prose prose-sm max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={createMarkup(result.certificationRecommendations)} />
             </CardContent>
           </Card>
           )}
@@ -203,7 +213,7 @@ export default function UpskillingRecommenderPage() {
                 <CardTitle>Additional Resources</CardTitle>
               </Header>
               <CardContent>
-                <div className="prose prose-sm max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: result.additionalResources.replace(/\n/g, '<br>') }} />
+                <div className="prose prose-sm max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={createMarkup(result.additionalResources)} />
               </CardContent>
             </Card>
           )}
