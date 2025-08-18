@@ -77,7 +77,7 @@ export default function UpskillingRecommenderPage() {
       return { __html: DOMPurify.sanitize(dirty as string) };
     }
     return { __html: "" };
-  }
+  };
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
