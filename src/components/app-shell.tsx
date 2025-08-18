@@ -12,7 +12,7 @@ import {
   User,
   DollarSign,
   LogOut,
-  ClipboardList,
+  PenSquare,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { CareerCoachWidget } from "@/components/career-coach-widget";
@@ -32,6 +32,7 @@ import { useAuth } from "@/hooks/use-auth";
 const mainNavItems = [
   { href: "/resume-analyzer", label: "Resume Analyzer" },
   { href: "/job-matcher", label: "Job Matcher" },
+  { href: "/cover-letter-generator", label: "Cover Letter" },
   { href: "/ai-interviewer", label: "AI Interviewer" },
   { href: "/network-connector", label: "Network Connector" },
   { href: "/upskilling-recommender", label: "Upskilling" },

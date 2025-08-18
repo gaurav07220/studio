@@ -5,12 +5,12 @@ import {
   ArrowRight,
   Briefcase,
   Check,
-  ClipboardList,
   FileCheck,
   FileText,
   LayoutGrid,
   Lightbulb,
   MessageSquare,
+  PenSquare,
   Send,
   TrendingUp,
   UploadCloud,
@@ -39,7 +39,14 @@ const features = [
     href: "/job-matcher",
   },
   {
-    icon: ClipboardList,
+    icon: PenSquare,
+    title: "Cover Letter Generator",
+    description:
+        "Generate a personalized cover letter in seconds based on your resume and a job description.",
+    href: "/cover-letter-generator",
+  },
+  {
+    icon: MessageSquare,
     title: "AI Interviewer",
     description:
         "Practice your interviewing skills with an AI that asks questions based on a job description and provides feedback.",
