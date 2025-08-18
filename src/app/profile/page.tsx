@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Award, Upload, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
 
 export default function ProfilePage() {
     const { user } = useAuth();
@@ -117,7 +118,9 @@ export default function ProfilePage() {
                                     <Badge variant="secondary">{achievement.type}</Badge>
                                 </div>
                             </div>
-                            <Button variant="outline" size="sm">View</Button>
+                            <Button variant="outline" size="sm" asChild>
+                               <Link href={`/assessments/${achievement.id}`}>View</Link>
+                            </Button>
                         </div>
                     ))}
                     {user.achievements.length === 0 && (
