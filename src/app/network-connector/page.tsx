@@ -1,8 +1,10 @@
+
 "use client";
 
 import { useState, useTransition } from "react";
-import { Users, Loader2 } from "lucide-react";
-import { generateNetworkingRecommendations } from "@/ai/flows/network-connector";
+import Link from 'next/link';
+import { Users, Loader2, Linkedin, ArrowRight, UserSearch } from "lucide-react";
+import { generateNetworkingRecommendations, type NetworkingRecommendationsOutput } from "@/ai/flows/network-connector";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,18 +12,20 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function NetworkConnectorPage() {
   const [isPending, startTransition] = useTransition();
   const [skills, setSkills] = useState("");
   const [experience, setExperience] = useState("");
   const [jobPreferences, setJobPreferences] = useState("");
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<NetworkingRecommendationsOutput | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = () => {
@@ -42,7 +46,7 @@ export default function NetworkConnectorPage() {
           experience,
           jobPreferences,
         });
-        setResult(res.recommendations);
+        setResult(res);
       } catch (error) {
         toast({
           variant: "destructive",
@@ -62,7 +66,7 @@ export default function NetworkConnectorPage() {
           Network Connector
         </h1>
         <p className="mt-2 text-muted-foreground">
-          Get personalized recommendations for LinkedIn connections and groups.
+          Get personalized recommendations for professionals to connect with.
         </p>
       </header>
 
@@ -110,8 +114,8 @@ export default function NetworkConnectorPage() {
                 </>
               ) : (
                 <>
-                  <Users className="mr-2 h-4 w-4" />
-                  Get Recommendations
+                  <UserSearch className="mr-2 h-4 w-4" />
+                  Find Contacts
                 </>
               )}
             </Button>
@@ -124,13 +128,19 @@ export default function NetworkConnectorPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Loader2 className="animate-spin" />
-              Generating recommendations...
+              Searching for relevant contacts...
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="h-4 bg-muted rounded-full w-full animate-pulse"></div>
-            <div className="h-4 bg-muted rounded-full w-5/6 animate-pulse"></div>
-            <div className="h-4 bg-muted rounded-full w-3/4 animate-pulse"></div>
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex items-center gap-4 p-2">
+                  <div className="w-12 h-12 bg-muted rounded-full animate-pulse"></div>
+                  <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
+                      <div className="h-4 bg-muted rounded w-3/4 animate-pulse"></div>
+                  </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}
@@ -140,13 +150,31 @@ export default function NetworkConnectorPage() {
           <CardHeader>
             <CardTitle>Networking Recommendations</CardTitle>
             <CardDescription>
-              Here are some personalized suggestions to grow your network.
+              Here are some professionals you should consider connecting with.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="prose prose-sm max-w-none whitespace-pre-wrap rounded-md bg-muted p-4">
-                {result}
-            </div>
+          <CardContent className="space-y-4">
+            {result.recommendations.map((person, index) => (
+                <Card key={index} className="p-4">
+                    <div className="flex items-start gap-4">
+                        <Avatar className="w-12 h-12 border">
+                            <AvatarFallback className="bg-secondary text-secondary-foreground text-lg">
+                                {person.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                            <h3 className="font-semibold">{person.name}</h3>
+                            <p className="text-sm text-muted-foreground">{person.headline}</p>
+                            <p className="text-xs text-muted-foreground mt-2 italic">"{person.reason}"</p>
+                        </div>
+                        <Button asChild variant="outline" size="sm">
+                            <Link href={person.linkedinUrl} target="_blank" rel="noopener noreferrer">
+                                <Linkedin className="mr-2"/> View Profile
+                            </Link>
+                        </Button>
+                    </div>
+                </Card>
+            ))}
           </CardContent>
         </Card>
       )}
