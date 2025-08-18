@@ -22,8 +22,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // Simulate a logged-in user for demonstration purposes
-  const [user, setUser] = useState<User | null>({ email: 'user@example.com' });
+  // All firebase logic is removed, we can provide a default user or null
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
 
   const signOut = async () => {

@@ -67,8 +67,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { user, loading, signOut } = useAuth();
 
   const handleSignOut = () => {
-      // For demonstration, we'll just log out. 
-      // In a real app, you might redirect to a login page.
       signOut();
   }
 
@@ -96,7 +94,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     <BrainCircuit className="h-6 w-6 text-primary" />
                     <span>CareerAI</span>
                   </Link>
-                  {[...mainNavItems, ...userMenuItems].map((item) => (
+                  {[...mainNavItems, ...userMenuItems.filter(item => item.href !== '/profile' && item.href !== '/settings')].map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
@@ -130,50 +128,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
         
         <div className="flex items-center gap-4">
-          {!loading && user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="rounded-full">
-                  <Avatar>
-                      <AvatarFallback>{user.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                  </Avatar>
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {userMenuItems.map(item => (
-                    <DropdownMenuItem key={item.label} asChild>
-                       <Link href={item.href} className="flex items-center gap-2">
-                            <item.icon className="w-4 h-4"/>
-                            <span>{item.label}</span>
-                       </Link>
-                    </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-                    <div className="flex items-center gap-2">
-                        <LogOut className="w-4 h-4"/>
-                        <span>Logout</span>
-                    </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : !loading && (
-            <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/login">Log In</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href="/signup">Sign Up</Link>
-              </Button>
-            </div>
-          )}
+          {/* All user auth related UI is removed */}
         </div>
       </header>
       <main className="flex flex-1 flex-col">{children}</main>
-      {user && <CareerCoachWidget />}
+      <CareerCoachWidget />
     </div>
   );
 }
