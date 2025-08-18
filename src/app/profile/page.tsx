@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Upload } from "lucide-react";
+import { Award, Upload } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProfilePage() {
   return (
@@ -85,6 +86,25 @@ export default function ProfilePage() {
                         <Upload className="mr-2" />
                         Upload Photo
                     </Button>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Achievements</CardTitle>
+                    <CardDescription>Your earned certificates and badges.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                            <Award className="w-8 h-8 text-yellow-500" />
+                            <div>
+                                <h4 className="font-semibold">React.js Fundamentals</h4>
+                                <Badge variant="secondary">Certificate</Badge>
+                            </div>
+                        </div>
+                        <Button variant="outline" size="sm">View</Button>
+                    </div>
                 </CardContent>
             </Card>
         </div>
