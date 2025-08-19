@@ -32,18 +32,14 @@ interface Message {
 }
 
 const INTERVIEW_COMPLETE_SIGNAL = "INTERVIEW_COMPLETE";
-const FREE_PLAN_INTERVIEW_LIMIT = 2;
-const FREE_PLAN_TOTAL_INTERVIEWS_LIMIT = 1;
+const FREE_PLAN_MESSAGE_LIMIT = 1;
 
-const UpgradePrompt = ({ onStartNew, context }: { onStartNew?: () => void, context: 'during' | 'before' }) => (
+const UpgradePrompt = ({ onStartNew }: { onStartNew?: () => void }) => (
     <Card className="mt-4 border-primary/50">
         <CardHeader>
             <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Unlock Your Full Potential</CardTitle>
             <CardDescription>
-                {context === 'during' ? 
-                    `You've answered your ${FREE_PLAN_INTERVIEW_LIMIT} free questions. Upgrade to Pro to continue the interview and get your full performance report.`
-                    : `You've used all your free interview sessions. Upgrade to Pro for unlimited mock interviews.`
-                }
+                You've answered your free question. Upgrade to Pro to continue the interview and get your full performance report.
             </CardDescription>
         </CardHeader>
         <CardFooter className="gap-4">
@@ -70,8 +66,6 @@ export default function AiInterviewerPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { user, profile, updateLastActivity, refreshProfile } = useAuth();
   
-  const hasExceededFreeStarts = profile?.plan === 'free' && (profile?.interviewsStarted || 0) >= FREE_PLAN_TOTAL_INTERVIEWS_LIMIT;
-
   useEffect(() => {
     updateLastActivity('/ai-interviewer');
   }, [updateLastActivity]);
@@ -189,9 +183,7 @@ export default function AiInterviewerPage() {
             const res = await conductInterview({
                 jobDescription,
                 history: [],
-                isNewInterview: true,
             });
-            await refreshProfile();
             const audioRes = await textToSpeech(res.response);
             const assistantMessage: Message = { role: "assistant", content: res.response, audioUrl: audioRes.media };
             setMessages([assistantMessage]);
@@ -216,7 +208,7 @@ export default function AiInterviewerPage() {
     setInput("");
 
     // Check for free plan limit AFTER adding the current message
-    if (profile?.plan === 'free' && newMessages.filter(m => m.role === 'user').length >= FREE_PLAN_INTERVIEW_LIMIT) {
+    if (profile?.plan === 'free' && newMessages.filter(m => m.role === 'user').length >= FREE_PLAN_MESSAGE_LIMIT) {
         setShowUpgradePrompt(true);
         return;
     }
@@ -297,13 +289,11 @@ export default function AiInterviewerPage() {
               className="h-64"
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
-              disabled={hasExceededFreeStarts}
             />
-             {hasExceededFreeStarts && <UpgradePrompt context="before" />}
           </CardContent>
           <CardFooter>
-            <Button onClick={handleStartInterview} disabled={isPending || !jobDescription.trim() || hasExceededFreeStarts}>
-              {hasExceededFreeStarts ? <Lock className="mr-2"/> : (isPending ? <Loader2 className="mr-2 animate-spin" /> : <ClipboardList className="mr-2" />)}
+            <Button onClick={handleStartInterview} disabled={isPending || !jobDescription.trim()}>
+              {isPending ? <Loader2 className="mr-2 animate-spin" /> : <ClipboardList className="mr-2" />}
               Start Interview
             </Button>
           </CardFooter>
@@ -338,7 +328,7 @@ export default function AiInterviewerPage() {
                       </div>
                   </div>
               )}
-               {showUpgradePrompt && <UpgradePrompt onStartNew={resetInterview} context="during" />}
+               {showUpgradePrompt && <UpgradePrompt onStartNew={resetInterview} />}
             </CardContent>
           </ScrollArea>
           

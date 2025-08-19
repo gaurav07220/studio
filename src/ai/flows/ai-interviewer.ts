@@ -11,15 +11,11 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { getFirebaseUid } from '@genkit-ai/next';
-import { doc, getDoc, setDoc, increment } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 
 const AiInterviewerInputSchema = z.object({
   jobDescription: z.string().describe('The job description for the role.'),
   history: z.array(z.string()).describe('The conversation history between the AI and the user. Each entry is a string formatted as "role: content".'),
-  isNewInterview: z.boolean().optional().describe('Whether this is the start of a new interview.'),
 });
 export type AiInterviewerInput = z.infer<typeof AiInterviewerInputSchema>;
 
@@ -71,18 +67,8 @@ const conductInterviewFlow = ai.defineFlow(
     name: 'conductInterviewFlow',
     inputSchema: AiInterviewerInputSchema,
     outputSchema: AiInterviewerOutputSchema,
-    auth: { policy: 'require' },
   },
   async input => {
-
-    if (input.isNewInterview) {
-        const uid = getFirebaseUid();
-        if (uid) {
-            const userDocRef = doc(db, 'users', uid);
-            await setDoc(userDocRef, { interviewsStarted: increment(1) }, { merge: true });
-        }
-    }
-
     const {output} = await interviewPrompt(input);
     return output!;
   }
