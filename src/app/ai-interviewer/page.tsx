@@ -203,7 +203,7 @@ export default function AiInterviewerPage() {
           setMessages((prev) => [...prev, assistantMessage]);
         }
 
-      } catch (error) => {
+      } catch (error) {
         toast({
           variant: "destructive",
           title: "Message Failed",
@@ -379,6 +379,5 @@ export default function AiInterviewerPage() {
       )}
     </div>
   );
-}
 
     
