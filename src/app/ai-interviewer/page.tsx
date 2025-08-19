@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
-import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText } from "lucide-react";
+import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText, Sparkles } from "lucide-react";
 import { conductInterview } from "@/ai/flows/ai-interviewer";
 import { textToSpeech } from "@/ai/flows/text-to-speech";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { InterviewReport } from "@/components/interview-report";
 import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
 
 
 interface Message {
@@ -32,6 +33,23 @@ interface Message {
 
 const INTERVIEW_COMPLETE_SIGNAL = "INTERVIEW_COMPLETE";
 
+const UpgradePrompt = ({ onStartNew }: { onStartNew: () => void }) => (
+    <Card className="mt-4 border-primary/50">
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Unlock Your Full Potential</CardTitle>
+            <CardDescription>You've completed the trial question. Upgrade to Pro to continue the interview and get your full performance report.</CardDescription>
+        </CardHeader>
+        <CardFooter className="gap-4">
+            <Button asChild>
+                <Link href="/pricing">Upgrade to Pro</Link>
+            </Button>
+            <Button variant="outline" onClick={onStartNew}>
+                Start New Interview
+            </Button>
+        </CardFooter>
+    </Card>
+);
+
 export default function AiInterviewerPage() {
   const [isPending, startTransition] = useTransition();
   const [jobDescription, setJobDescription] = useState("");
@@ -40,9 +58,10 @@ export default function AiInterviewerPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [report, setReport] = useState("");
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { updateLastActivity } = useAuth();
+  const { user, profile, updateLastActivity } = useAuth();
   
   useEffect(() => {
     updateLastActivity('/ai-interviewer');
@@ -128,6 +147,15 @@ export default function AiInterviewerPage() {
       playAudio(lastMessage.audioUrl);
     }
   }, [messages]);
+  
+  const resetInterview = () => {
+    setInterviewStarted(false);
+    setInterviewFinished(false);
+    setMessages([]);
+    setReport("");
+    setInput("");
+    setShowUpgradePrompt(false);
+  }
 
   const handleStartInterview = () => {
     if (!jobDescription.trim()) {
@@ -138,10 +166,8 @@ export default function AiInterviewerPage() {
       });
       return;
     }
+    resetInterview();
     setInterviewStarted(true);
-    setMessages([]);
-    setReport("");
-    setInterviewFinished(false);
     
     startTransition(async () => {
         try {
@@ -166,6 +192,13 @@ export default function AiInterviewerPage() {
   const handleSubmitMessage = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || isPending) return;
+    
+    // Check for free plan limit
+    if (profile?.plan === 'free' && messages.filter(m => m.role === 'user').length >= 1) {
+        setShowUpgradePrompt(true);
+        setInput("");
+        return;
+    }
 
     const userMessage: Message = { role: "user", content: input };
     const newMessages = [...messages, userMessage];
@@ -287,10 +320,11 @@ export default function AiInterviewerPage() {
                       </div>
                   </div>
               )}
+               {showUpgradePrompt && <UpgradePrompt onStartNew={resetInterview} />}
             </CardContent>
           </ScrollArea>
           
-          {!interviewFinished ? (
+          {!interviewFinished && !showUpgradePrompt ? (
             <CardFooter className="p-4 border-t">
               <form onSubmit={handleSubmitMessage} className="flex items-center gap-2 w-full">
                 <Input
@@ -321,7 +355,7 @@ export default function AiInterviewerPage() {
             </CardFooter>
           ) : (
             <CardFooter className="p-4 border-t">
-                 <Button onClick={() => setInterviewStarted(false)}>
+                 <Button onClick={resetInterview}>
                     Start New Interview
                 </Button>
             </CardFooter>

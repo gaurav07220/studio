@@ -133,7 +133,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 
   const signUp = async (email: string, pass: string) => {
-      return createUserWithEmailAndPassword(auth, email, pass);
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      const userDocRef = doc(db, "users", cred.user.uid);
+      const defaultProfile: UserProfile = { 
+          name: cred.user.email?.split('@')[0] || 'User',
+          photoURL: cred.user.photoURL || '',
+          plan: 'free',
+      };
+      await setDoc(userDocRef, defaultProfile);
+      setProfile(defaultProfile);
+      return cred;
   }
 
   const signIn = async (email: string, pass: string) => {

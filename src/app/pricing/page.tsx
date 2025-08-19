@@ -22,31 +22,34 @@ const tiers = [
     features: [
       "Resume Analysis & Feedback",
       "Job Description Matcher",
-      "AI Interview Practice",
-      "Cover Letter Generation",
+      "AI Interview Practice (1 Question)",
       "Upskilling Recommendations",
       "Job Market Insights",
     ],
     cta: "Your Current Plan",
+    ctaDisabled: true,
     popular: false,
   },
   {
     name: "Pro",
-    price: "Coming Soon",
-    description: "Unlock your full potential with advanced AI tools and priority support.",
+    price: "$10 / mo",
+    description: "Unlock your full potential with advanced AI tools and unlimited access.",
     features: [
       "All features in the Free plan",
+      "Full AI Interview with Feedback",
+      "AI Cover Letter Generation",
       "Advanced Resume Analytics",
-      "In-depth Interview Feedback",
       "Priority Support",
     ],
-    cta: "Notify Me",
+    cta: "Coming Soon",
+    ctaDisabled: true,
     popular: true,
   },
 ];
 
 export default function PricingPage() {
     const { profile } = useAuth();
+    const isPro = profile?.plan === 'pro';
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
@@ -55,7 +58,7 @@ export default function PricingPage() {
           Find the Plan That's Right for You
         </h1>
         <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
-          Our platform is currently free for all users. Pro features are coming soon!
+          Start for free, and upgrade to Pro when you're ready to accelerate your job search. Payment integration is coming soon!
         </p>
       </header>
 
@@ -91,8 +94,8 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-               <Button className="w-full" disabled={tier.name !== 'Pro'}>
-                    {tier.cta}
+               <Button className="w-full" disabled={tier.ctaDisabled || (tier.name === 'Free' && !isPro) || (tier.name === 'Pro' && isPro)}>
+                    {isPro && tier.name === 'Pro' ? 'Your Current Plan' : tier.cta}
                 </Button>
             </CardFooter>
           </Card>

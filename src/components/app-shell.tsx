@@ -13,6 +13,7 @@ import {
   DollarSign,
   LogOut,
   LogIn,
+  Sparkles,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CareerCoachWidget } from "@/components/career-coach-widget";
@@ -29,17 +30,18 @@ import {
 } from "./ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { Badge } from "./ui/badge";
 
 const mainNavItems = [
-  { href: "/resume-analyzer", label: "Resume Analyzer" },
-  { href: "/job-matcher", label: "Job Matcher" },
-  { href: "/ai-interviewer", label: "AI Interviewer" },
-  { href: "/job-market", label: "Job Market" },
+  { href: "/resume-analyzer", label: "Resume Analyzer", pro: false },
+  { href: "/job-matcher", label: "Job Matcher", pro: false },
+  { href: "/ai-interviewer", label: "AI Interviewer", pro: true },
+  { href: "/job-market", label: "Job Market", pro: false },
 ];
 
 const moreNavItems = [
-  { href: "/cover-letter-generator", label: "Cover Letter" },
-  { href: "/upskilling-recommender", label: "Upskilling" },
+  { href: "/cover-letter-generator", label: "Cover Letter", pro: true },
+  { href: "/upskilling-recommender", label: "Upskilling", pro: false },
 ]
 
 const userMenuItems = [
@@ -52,7 +54,7 @@ const helpMenuItems = [
      { href: "#", label: "Help & Support", icon: HelpCircle },
 ]
 
-const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+const NavLink = ({ href, children, pro }: { href: string; children: React.ReactNode, pro: boolean }) => {
     const pathname = usePathname();
     const isActive = pathname === href;
 
@@ -60,11 +62,12 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
         <Link
             href={href}
             className={cn(
-                "transition-colors text-foreground/60 hover:text-foreground/80",
+                "transition-colors text-foreground/60 hover:text-foreground/80 flex items-center gap-2",
                 isActive && "text-primary font-medium"
             )}
         >
             {children}
+            {pro && <Badge variant="secondary" className="text-primary border-primary/50 px-1.5 py-0 text-xs leading-none">PRO</Badge>}
         </Link>
     );
 };
@@ -112,10 +115,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="text-muted-foreground hover:text-foreground"
+                      className="text-muted-foreground hover:text-foreground flex items-center gap-2"
                       onClick={() => setOpenMobileMenu(false)}
                     >
                       {item.label}
+                      {item.pro && <Badge variant="secondary" className="text-primary border-primary/50 px-1.5 py-0 text-xs leading-none">PRO</Badge>}
                     </Link>
                   ))}
                   <DropdownMenuSeparator />
@@ -145,7 +149,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <nav className="hidden flex-1 justify-center md:flex">
             <div className="flex items-center gap-5 text-sm lg:gap-6">
                 {mainNavItems.map((item) => (
-                    <NavLink key={item.href} href={item.href}>
+                    <NavLink key={item.href} href={item.href} pro={item.pro}>
                         {item.label}
                     </NavLink>
                 ))}
@@ -156,8 +160,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     <DropdownMenuContent>
                         {moreNavItems.map((item) => (
                              <DropdownMenuItem key={item.href} asChild>
-                                <Link href={item.href}>
+                                <Link href={item.href} className="flex items-center justify-between w-full">
                                     {item.label}
+                                    {item.pro && <Badge variant="secondary" className="text-primary border-primary/50 px-1.5 py-0 text-xs leading-none ml-2">PRO</Badge>}
                                 </Link>
                             </DropdownMenuItem>
                         ))}
@@ -182,7 +187,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">Signed In</p>
+                      <p className="text-sm font-medium leading-none">Signed In As</p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>
