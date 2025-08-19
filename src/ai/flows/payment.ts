@@ -12,7 +12,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import { getFirebaseUid } from '@genkit-ai/next/auth';
+import { getFirebaseUid } from 'genkit/next/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
