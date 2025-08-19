@@ -24,7 +24,6 @@ const leaderboardUsers = [
 ];
 
 export default function CommunityPage() {
-  const { user } = useAuth();
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
