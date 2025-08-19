@@ -38,7 +38,7 @@ const UpgradePrompt = ({ onStartNew }: { onStartNew: () => void }) => (
     <Card className="mt-4 border-primary/50">
         <CardHeader>
             <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Unlock Your Full Potential</CardTitle>
-            <CardDescription>You've completed the free trial of {FREE_PLAN_INTERVIEW_LIMIT} questions. Upgrade to Pro to continue the interview and get your full performance report.</CardDescription>
+            <CardDescription>You've answered your {FREE_PLAN_INTERVIEW_LIMIT} free questions. Upgrade to Pro to continue the interview and get your full performance report.</CardDescription>
         </CardHeader>
         <CardFooter className="gap-4">
             <Button asChild>
@@ -156,6 +156,7 @@ export default function AiInterviewerPage() {
     setReport("");
     setInput("");
     setShowUpgradePrompt(false);
+    setJobDescription("");
   }
 
   const handleStartInterview = () => {
@@ -167,8 +168,12 @@ export default function AiInterviewerPage() {
       });
       return;
     }
-    resetInterview();
     setInterviewStarted(true);
+    setInterviewFinished(false);
+    setMessages([]);
+    setReport("");
+    setInput("");
+    setShowUpgradePrompt(false);
     
     startTransition(async () => {
         try {
@@ -194,17 +199,16 @@ export default function AiInterviewerPage() {
     e?.preventDefault();
     if (!input.trim() || isPending) return;
     
-    // Check for free plan limit
-    if (profile?.plan === 'free' && messages.filter(m => m.role === 'user').length >= FREE_PLAN_INTERVIEW_LIMIT) {
-        setShowUpgradePrompt(true);
-        setInput("");
-        return;
-    }
-
     const userMessage: Message = { role: "user", content: input };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput("");
+
+    // Check for free plan limit AFTER adding the current message
+    if (profile?.plan === 'free' && newMessages.filter(m => m.role === 'user').length >= FREE_PLAN_INTERVIEW_LIMIT) {
+        setShowUpgradePrompt(true);
+        return;
+    }
 
     startTransition(async () => {
       try {
@@ -285,7 +289,7 @@ export default function AiInterviewerPage() {
             />
           </CardContent>
           <CardFooter>
-            <Button onClick={handleStartInterview} disabled={isPending}>
+            <Button onClick={handleStartInterview} disabled={isPending || !jobDescription.trim()}>
               {isPending ? <Loader2 className="mr-2 animate-spin" /> : <ClipboardList className="mr-2" />}
               Start Interview
             </Button>
@@ -313,7 +317,7 @@ export default function AiInterviewerPage() {
                   )}
                 </div>
               ))}
-              {isPending && messages[messages.length-1]?.role === 'user' && (
+              {isPending && messages[messages.length-1]?.role === 'user' && !showUpgradePrompt && (
                   <div className="flex items-start gap-3 justify-start">
                       <Avatar className="h-8 w-8 border-2 border-primary"><AvatarFallback className="bg-primary text-primary-foreground"><BrainCircuit className="h-5 w-5"/></AvatarFallback></Avatar>
                       <div className="max-w-xs rounded-lg p-3 bg-muted flex items-center">
@@ -325,42 +329,39 @@ export default function AiInterviewerPage() {
             </CardContent>
           </ScrollArea>
           
-          {!interviewFinished && !showUpgradePrompt ? (
-            <CardFooter className="p-4 border-t">
-              <form onSubmit={handleSubmitMessage} className="flex items-center gap-2 w-full">
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={isRecording ? "Listening..." : "Your answer..."}
-                  disabled={isPending}
-                  className="flex-1"
-                  autoComplete="off"
-                />
-                <Button type="submit" disabled={isPending || !input.trim()} size="icon">
-                  <Send className="h-4 w-4" />
-                </Button>
-                {!isRecording ? (
-                  <Button type="button" onClick={handleStartRecording} disabled={isPending} size="icon">
-                    <Mic className="h-4 w-4" />
+          <CardFooter className="p-4 border-t">
+            {!interviewFinished && !showUpgradePrompt ? (
+                <form onSubmit={handleSubmitMessage} className="flex items-center gap-2 w-full">
+                  <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={isRecording ? "Listening..." : "Your answer..."}
+                    disabled={isPending}
+                    className="flex-1"
+                    autoComplete="off"
+                  />
+                  <Button type="submit" disabled={isPending || !input.trim()} size="icon">
+                    <Send className="h-4 w-4" />
                   </Button>
-                ) : (
-                  <Button type="button" onClick={handleStopRecording} disabled={isPending} size="icon" variant="destructive">
-                    <Square className="h-4 w-4" />
+                  {!isRecording ? (
+                    <Button type="button" onClick={handleStartRecording} disabled={isPending} size="icon">
+                      <Mic className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button type="button" onClick={handleStopRecording} disabled={isPending} size="icon" variant="destructive">
+                      <Square className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={handleEndInterview} disabled={isPending} type="button">
+                      End Interview
                   </Button>
-                )}
-                <Button variant="destructive" onClick={handleEndInterview} disabled={isPending} type="button">
-                    {isPending ? <Loader2 className="mr-2 animate-spin" /> : <Square className="mr-2" />}
-                    End Interview
-                </Button>
-              </form>
-            </CardFooter>
-          ) : (
-            <CardFooter className="p-4 border-t">
-                 <Button onClick={resetInterview}>
-                    Start New Interview
-                </Button>
-            </CardFooter>
-          )}
+                </form>
+            ) : (
+                  <Button onClick={resetInterview}>
+                      Start New Interview
+                  </Button>
+            )}
+          </CardFooter>
         </Card>
       )}
 
@@ -378,5 +379,3 @@ export default function AiInterviewerPage() {
     </div>
   );
 }
-
-    
