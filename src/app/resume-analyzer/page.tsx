@@ -189,8 +189,7 @@ export default function ResumeAnalyzerPage() {
         case 'modern':
         default: return <ModernTemplate data={templateData} />;
     }
-  }
-
+  };
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
@@ -327,7 +326,7 @@ export default function ResumeAnalyzerPage() {
                 <CardTitle className="flex items-center gap-2 text-yellow-600">
                   <AlertTriangle /> Areas for Improvement
                 </CardTitle>
-              </CardHeader>
+              </Header>
               <CardContent>
                 <ul className="list-disc space-y-2 pl-5">
                   {result.areasForImprovement.map((item, i) => (
