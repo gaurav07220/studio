@@ -176,10 +176,13 @@ export default function ResumeAnalyzerPage() {
       }
     }
   };
-
-  const renderTemplateWithRef = (TemplateComponent: React.FC<{ data: TemplateData, ref?: React.Ref<HTMLDivElement> }>, ref: React.Ref<HTMLDivElement>) => (
-    templateData ? <TemplateComponent data={templateData} ref={ref} /> : <div>Loading template data...</div>
-  );
+  
+  const renderTemplateWithRef = (TemplateComponent: React.ComponentType<{ data: TemplateData }>, ref: React.Ref<HTMLDivElement>) => {
+    if (!templateData) return <div>Loading template data...</div>;
+    const componentElement = <TemplateComponent data={templateData} />;
+    return React.cloneElement(componentElement, { ref });
+  };
+  
 
   const renderPreviewTemplate = () => {
     if(!templateData) return <div/>;
@@ -312,7 +315,7 @@ export default function ResumeAnalyzerPage() {
                 <CardTitle className="flex items-center gap-2 text-green-600">
                   <CheckCircle2 /> Strengths
                 </CardTitle>
-              </Header>
+              </CardHeader>
               <CardContent>
                 <ul className="list-disc space-y-2 pl-5">
                   {result.strengths.map((item, i) => (
@@ -326,7 +329,7 @@ export default function ResumeAnalyzerPage() {
                 <CardTitle className="flex items-center gap-2 text-yellow-600">
                   <AlertTriangle /> Areas for Improvement
                 </CardTitle>
-              </Header>
+              </CardHeader>
               <CardContent>
                 <ul className="list-disc space-y-2 pl-5">
                   {result.areasForImprovement.map((item, i) => (
@@ -409,8 +412,8 @@ export default function ResumeAnalyzerPage() {
                     <div className="h-0 overflow-hidden">
                         {/* Render templates off-screen for html2canvas */}
                         {renderTemplateWithRef(ModernTemplate, modernRef)}
+                        {renderTemplateWithRef(ClassicTemplate, creativeRef)}
                         {renderTemplateWithRef(ClassicTemplate, classicRef)}
-                        {renderTemplateWithRef(CreativeTemplate, creativeRef)}
                     </div>
 
                     <TabsContent value="modern">
@@ -448,4 +451,5 @@ export default function ResumeAnalyzerPage() {
       )}
     </div>
   );
-}
+
+    
