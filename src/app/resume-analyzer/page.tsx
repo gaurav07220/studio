@@ -47,7 +47,6 @@ import { useAuth } from "@/hooks/use-auth";
 
 export default function ResumeAnalyzerPage() {
   const [isPending, startTransition] = useTransition();
-  const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
   const [result, setResult] = useState<ResumeAnalysisOutput | null>(null);
@@ -72,10 +71,25 @@ export default function ResumeAnalyzerPage() {
         selectedFile.type ===
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       ) {
-        setFile(selectedFile);
         setFileName(selectedFile.name);
         setResult(null);
         setTemplateData(null);
+        
+        const reader = new FileReader();
+        reader.readAsDataURL(selectedFile);
+        reader.onload = (e) => {
+          const dataUri = e.target?.result as string;
+          setFileContent(dataUri);
+        };
+        reader.onerror = () => {
+           toast({
+              variant: "destructive",
+              title: "File Read Error",
+              description: "Could not read the selected file.",
+            });
+            setFileContent("");
+        }
+
       } else {
         toast({
           variant: "destructive",
@@ -83,12 +97,14 @@ export default function ResumeAnalyzerPage() {
           description: "Please upload a PDF or DOCX file.",
         });
         event.target.value = "";
+        setFileContent("");
+        setFileName("");
       }
     }
   };
 
   const handleSubmit = async () => {
-    if (!file) {
+    if (!fileContent) {
       toast({
         variant: "destructive",
         title: "No file selected",
@@ -99,37 +115,23 @@ export default function ResumeAnalyzerPage() {
 
     startTransition(async () => {
       try {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async (e) => {
-          const dataUri = e.target?.result as string;
-          if (dataUri) {
-            setFileContent(dataUri);
-            const res = await resumeAnalysisFeedback({
-              resumeDataUri: dataUri,
-            });
-            setResult(res);
+        const res = await resumeAnalysisFeedback({
+          resumeDataUri: fileContent,
+        });
+        setResult(res);
 
-            // Map extracted data to template data format
-            const extracted = res.extractedData;
-            setTemplateData({
-                name: extracted.name || "Your Name",
-                email: extracted.email || "your.email@example.com",
-                phone: extracted.phone || "123-456-7890",
-                linkedin: extracted.linkedin || "linkedin.com/in/yourprofile",
-                summary: extracted.summary || "A brief professional summary.",
-                experience: extracted.experience || [],
-                education: extracted.education || [],
-                skills: extracted.skills || [],
-            });
-
-          } else {
-            throw new Error("Could not read file.");
-          }
-        };
-        reader.onerror = () => {
-          throw new Error("Error reading file.");
-        };
+        // Map extracted data to template data format
+        const extracted = res.extractedData;
+        setTemplateData({
+            name: extracted.name || "Your Name",
+            email: extracted.email || "your.email@example.com",
+            phone: extracted.phone || "123-456-7890",
+            linkedin: extracted.linkedin || "linkedin.com/in/yourprofile",
+            summary: extracted.summary || "A brief professional summary.",
+            experience: extracted.experience || [],
+            education: extracted.education || [],
+            skills: extracted.skills || [],
+        });
       } catch (error) {
         toast({
           variant: "destructive",
@@ -220,7 +222,7 @@ export default function ResumeAnalyzerPage() {
                 accept=".pdf,.docx"
                 className="cursor-pointer"
               />
-              <Button onClick={handleSubmit} disabled={isPending || !file}>
+              <Button onClick={handleSubmit} disabled={isPending || !fileContent}>
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -311,7 +313,7 @@ export default function ResumeAnalyzerPage() {
                 <CardTitle className="flex items-center gap-2 text-green-600">
                   <CheckCircle2 /> Strengths
                 </CardTitle>
-              </CardHeader>
+              </Header>
               <CardContent>
                 <ul className="list-disc space-y-2 pl-5">
                   {result.strengths.map((item, i) => (
