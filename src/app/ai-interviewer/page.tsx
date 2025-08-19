@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
-import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText, Lock, Star } from "lucide-react";
+import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText, Star } from "lucide-react";
 import { conductInterview } from "@/ai/flows/ai-interviewer";
 import { textToSpeech } from "@/ai/flows/text-to-speech";
 import { Button } from "@/components/ui/button";
@@ -379,5 +379,4 @@ export default function AiInterviewerPage() {
       )}
     </div>
   );
-
-    
+}
