@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import { useAuth } from "@/hooks/use-auth";
 
 const createMarkup = (markdownText?: string) => {
     if (typeof window !== 'undefined' && markdownText) {
@@ -39,6 +40,11 @@ export default function UpskillingRecommenderPage() {
   const [result, setResult] = useState<UpskillingRecommenderOutput | null>(null);
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const { updateLastActivity } = useAuth();
+
+  useEffect(() => {
+    updateLastActivity('/upskilling-recommender');
+  }, [updateLastActivity]);
 
   useEffect(() => {
     const gaps = searchParams.get("skillGaps");

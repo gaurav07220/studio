@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { PenSquare, Loader2, Clipboard, Send } from "lucide-react";
 import { generateCoverLetter } from "@/ai/flows/cover-letter-generator";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function CoverLetterGeneratorPage() {
   const [isPending, startTransition] = useTransition();
@@ -22,6 +23,11 @@ export default function CoverLetterGeneratorPage() {
   const [jobDescriptionText, setJobDescriptionText] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const { toast } = useToast();
+  const { updateLastActivity } = useAuth();
+
+  useEffect(() => {
+    updateLastActivity('/cover-letter-generator');
+  }, [updateLastActivity]);
 
   const handleSubmit = () => {
     if (!resumeText || !jobDescriptionText) {

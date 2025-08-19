@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { InterviewReport } from "@/components/interview-report";
+import { useAuth } from "@/hooks/use-auth";
 
 
 interface Message {
@@ -41,6 +42,11 @@ export default function AiInterviewerPage() {
   const [report, setReport] = useState("");
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { updateLastActivity } = useAuth();
+
+  useEffect(() => {
+    updateLastActivity('/ai-interviewer');
+  }, [updateLastActivity]);
 
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
@@ -338,5 +344,3 @@ export default function AiInterviewerPage() {
     </div>
   );
 }
-
-    

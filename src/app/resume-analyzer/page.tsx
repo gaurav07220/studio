@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
   FileText,
@@ -42,6 +42,7 @@ import { ClassicTemplate, ModernTemplate, CreativeTemplate, type TemplateData } 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { useAuth } from "@/hooks/use-auth";
 
 
 export default function ResumeAnalyzerPage() {
@@ -56,6 +57,12 @@ export default function ResumeAnalyzerPage() {
   const classicRef = useRef<HTMLDivElement>(null);
   const creativeRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState("modern");
+  const { updateLastActivity } = useAuth();
+
+  useEffect(() => {
+    updateLastActivity('/resume-analyzer');
+  }, [updateLastActivity]);
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
