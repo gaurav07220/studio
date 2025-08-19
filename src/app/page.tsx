@@ -17,7 +17,6 @@ import {
   Users,
   Wallet,
   Zap,
-  Award,
   ShieldCheck,
 } from "lucide-react";
 import Image from "next/image";
@@ -53,13 +52,6 @@ const features = [
     description:
         "Practice your interviewing skills with an AI that asks questions based on a job description and provides feedback.",
     href: "/ai-interviewer",
-  },
-  {
-    icon: Award,
-    title: "Skill Assessments",
-    description:
-        "Prove your skills by taking coding challenges and MCQ tests to earn badges for your profile.",
-    href: "/assessments",
   },
   {
     icon: Lightbulb,
@@ -166,7 +158,7 @@ export default function Home() {
                   {`
                     @keyframes rotate {
                       from { transform: rotate(0deg); }
-                      to { transform: rotate(360deg); }
+                      to { transform: rotate(-360deg); }
                     }
                     @keyframes rotate-reverse {
                       from { transform: rotate(0deg); }

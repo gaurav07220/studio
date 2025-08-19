@@ -13,7 +13,6 @@ import {
   DollarSign,
   LogOut,
   LogIn,
-  Award,
   ShieldCheck,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,7 +35,6 @@ const mainNavItems = [
   { href: "/resume-analyzer", label: "Resume Analyzer" },
   { href: "/job-matcher", label: "Job Matcher" },
   { href: "/ai-interviewer", label: "AI Interviewer" },
-  { href: "/assessments", label: "Assessments" },
   { href: "/community", label: "Community" },
   { href: "/job-market", label: "Job Market" },
 ];
