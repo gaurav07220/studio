@@ -32,6 +32,7 @@ export interface UserProfile {
     linkedin?: string;
     portfolio?: string;
     photoURL?: string;
+    plan?: 'free' | 'pro';
     lastActivity?: {
         page: string;
         timestamp: Timestamp;
@@ -114,7 +115,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             } else {
                  const defaultProfile: UserProfile = { 
                     name: user.email?.split('@')[0] || 'User',
-                    photoURL: user.photoURL || ''
+                    photoURL: user.photoURL || '',
+                    plan: 'free', // Assign free plan on initial creation
                  };
                  await setDoc(userDocRef, defaultProfile);
                  setProfile(defaultProfile);
@@ -146,7 +148,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (!user) throw new Error("Not authenticated");
     const userDocRef = doc(db, 'users', user.uid);
     await setDoc(userDocRef, profileData, { merge: true });
-    setProfile(prev => ({...(prev || {}), ...profileData}));
+    setProfile(prev => ({...(prev || {}), ...profileData} as UserProfile));
   }
 
   const uploadProfilePicture = (file: File, onProgress: (progress: number) => void): Promise<string> => {

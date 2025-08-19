@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, Lock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,64 +12,69 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const tiers = [
   {
     name: "Free",
     price: "$0",
-    description: "For individuals getting started.",
+    description: "Essential tools to get you started.",
     features: [
-      "Basic Resume Analysis",
-      "10 Job Matches per month",
-      "Limited AI Coach access",
+      "Resume Analysis & Feedback",
+      "Job Description Matcher",
+      "Upskilling Recommendations",
+      "Job Market Insights",
     ],
-    cta: "Get Started",
+    cta: "You are on this plan",
+    planId: 'free',
     popular: false,
   },
   {
     name: "Pro",
     price: "$15",
-    description: "For professionals serious about their career.",
+    description: "Unlock your full potential with advanced AI tools.",
     features: [
-      "Advanced Resume Analysis & ATS Score",
-      "Unlimited Job Matches",
-      "Unlimited AI Coach access",
-      "Upskilling Recommendations",
-      "Network Connector",
+      "All features in the Free plan",
+      "AI Mock Interviewer",
+      "Cover Letter Generator",
+      "Priority Support",
     ],
     cta: "Upgrade to Pro",
+    planId: 'pro',
     popular: true,
-  },
-  {
-    name: "Team",
-    price: "$45",
-    description: "For bootcamps, colleges & hiring partners.",
-    features: [
-        "All Pro features",
-        "Up to 5 seats included",
-        "Team-based analytics",
-        "Priority Support",
-    ],
-    cta: "Get Started with Team",
-    popular: false,
-  },
-  {
-    name: "Enterprise",
-    price: "Contact Us",
-    description: "For large-scale teams and organizations.",
-    features: [
-      "All Team features",
-      "Custom number of seats",
-      "Custom branding",
-      "Dedicated account manager",
-      "Usage analytics API",
-    ],
-    cta: "Contact Sales",
-    popular: false,
   },
 ];
 
 export default function PricingPage() {
+    const { profile, updateProfile, user } = useAuth();
+    const { toast } = useToast();
+    const router = useRouter();
+
+    const handleUpgrade = async () => {
+        if (!user) {
+            router.push('/login?redirect=/pricing');
+            return;
+        }
+
+        try {
+            // In a real application, this would trigger a payment flow with Stripe, etc.
+            // For this demo, we'll just update the user's plan in Firestore.
+            await updateProfile({ plan: 'pro' });
+            toast({
+                title: "Upgrade Successful!",
+                description: "Welcome to the Pro plan. You now have access to all features.",
+            });
+        } catch (error) {
+             toast({
+                variant: 'destructive',
+                title: "Upgrade Failed",
+                description: "We couldn't process your upgrade. Please try again.",
+            });
+        }
+    }
+
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
       <header className="text-center">
@@ -81,16 +86,23 @@ export default function PricingPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 items-start max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch max-w-4xl mx-auto">
         {tiers.map((tier) => (
           <Card
             key={tier.name}
             className={cn(
               "flex flex-col h-full",
-              tier.popular ? "border-primary border-2 shadow-xl" : ""
+              tier.popular ? "border-primary border-2 shadow-xl relative" : ""
             )}
           >
-            <CardHeader>
+             {tier.popular && (
+                <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
+                    <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
+                        <Star className="w-4 h-4" /> Most Popular
+                    </div>
+                </div>
+             )}
+            <CardHeader className="pt-8">
               <CardTitle>{tier.name}</CardTitle>
               <CardDescription>{tier.description}</CardDescription>
               <div className="text-4xl font-bold pt-4">{tier.price}</div>
@@ -107,9 +119,15 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" variant={tier.popular ? "default" : "outline"}>
-                {tier.cta}
-              </Button>
+               {profile?.plan === tier.planId ? (
+                 <Button className="w-full" disabled>
+                    Your Current Plan
+                </Button>
+               ) : (
+                <Button className="w-full" variant={tier.popular ? "default" : "outline"} onClick={handleUpgrade}>
+                    {tier.cta}
+                </Button>
+               )}
             </CardFooter>
           </Card>
         ))}

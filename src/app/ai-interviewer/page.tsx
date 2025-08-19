@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
-import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText } from "lucide-react";
+import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText, Lock } from "lucide-react";
 import { conductInterview } from "@/ai/flows/ai-interviewer";
 import { textToSpeech } from "@/ai/flows/text-to-speech";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { InterviewReport } from "@/components/interview-report";
 import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
 
 
 interface Message {
@@ -42,7 +43,8 @@ export default function AiInterviewerPage() {
   const [report, setReport] = useState("");
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { updateLastActivity } = useAuth();
+  const { updateLastActivity, profile } = useAuth();
+  const isProUser = profile?.plan === 'pro';
 
   useEffect(() => {
     updateLastActivity('/ai-interviewer');
@@ -170,7 +172,6 @@ export default function AiInterviewerPage() {
     const userMessage: Message = { role: "user", content: input };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
-    const currentInput = input;
     setInput("");
 
     startTransition(async () => {
@@ -226,6 +227,26 @@ export default function AiInterviewerPage() {
             });
         }
     });
+  }
+
+  if (!isProUser) {
+    return (
+        <div className="p-4 md:p-8 flex flex-col items-center justify-center gap-4 text-center min-h-[calc(100vh-8rem)]">
+            <Card className="max-w-md">
+                <CardHeader>
+                    <CardTitle className="flex items-center justify-center gap-2"><Lock className="text-primary"/> Pro Feature Locked</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">The AI Mock Interviewer is a premium feature. Please upgrade to a Pro plan to practice for your interviews.</p>
+                </CardContent>
+                <CardFooter>
+                    <Button asChild className="w-full">
+                        <Link href="/pricing">Upgrade to Pro</Link>
+                    </Button>
+                </CardFooter>
+            </Card>
+        </div>
+    )
   }
 
   return (
