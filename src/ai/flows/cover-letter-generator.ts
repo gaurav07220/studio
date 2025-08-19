@@ -78,8 +78,8 @@ const generateCoverLetterFlow = ai.defineFlow(
     
     const {output} = await prompt(input);
     
-    // Increment count for free users
-    if (userProfile?.plan === 'free') {
+    // Increment count for free users, but only if they don't have a plan set (or it's free)
+    if (userProfile?.plan !== 'pro') {
         await setDoc(userDocRef, { coverLettersGenerated: increment(1) }, { merge: true });
     }
 
