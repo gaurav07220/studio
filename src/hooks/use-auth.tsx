@@ -37,6 +37,7 @@ export interface UserProfile {
         page: string;
         timestamp: Timestamp;
     };
+    coverLettersGenerated?: number;
 }
 
 interface AuthContextType {
@@ -49,6 +50,7 @@ interface AuthContextType {
   updateProfile: (profileData: Partial<UserProfile>) => Promise<void>;
   uploadProfilePicture: (file: File, onProgress: (progress: number) => void) => Promise<string>;
   updateLastActivity: (page: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -101,24 +103,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   }, [toast]);
 
+  const fetchProfile = useCallback(async (user: User) => {
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+    if (userDoc.exists()) {
+        const profileData = userDoc.data() as UserProfile;
+        setProfile(profileData);
+        return profileData;
+    }
+    return null;
+  }, []);
+
+  const refreshProfile = useCallback(async () => {
+    if (user) {
+        await fetchProfile(user);
+    }
+  }, [user, fetchProfile]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
         setUser(user);
         if (user) {
-            const userDocRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userDocRef);
-            if (userDoc.exists()) {
-                const profileData = userDoc.data() as UserProfile;
-                setProfile(profileData);
+            const profileData = await fetchProfile(user);
+            if (profileData) {
                 handleWelcomeMessages(profileData);
             } else {
                  const defaultProfile: UserProfile = { 
                     name: user.email?.split('@')[0] || 'User',
                     photoURL: user.photoURL || '',
                     plan: 'free',
+                    coverLettersGenerated: 0,
                  };
-                 await setDoc(userDocRef, defaultProfile);
+                 await setDoc(doc(db, "users", user.uid), defaultProfile);
                  setProfile(defaultProfile);
                  handleWelcomeMessages(defaultProfile);
             }
@@ -129,7 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [handleWelcomeMessages]);
+  }, [handleWelcomeMessages, fetchProfile]);
 
 
   const signUp = async (email: string, pass: string) => {
@@ -139,6 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           name: cred.user.email?.split('@')[0] || 'User',
           photoURL: cred.user.photoURL || '',
           plan: 'free',
+          coverLettersGenerated: 0,
       };
       await setDoc(userDocRef, defaultProfile);
       setProfile(defaultProfile);
@@ -194,7 +211,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, updateProfile, uploadProfilePicture, updateLastActivity }}>
+    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, updateProfile, uploadProfilePicture, updateLastActivity, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,3 +1,4 @@
+
 // This file holds the Genkit flow for the resumeAnalysisFeedback story.
 'use server';
 /**
@@ -10,6 +11,9 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { getFirebaseUid } from 'genkit/next';
+import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const ResumeAnalysisInputSchema = z.object({
   resumeDataUri: z
@@ -84,8 +88,17 @@ const resumeAnalysisFeedbackFlow = ai.defineFlow(
     name: 'resumeAnalysisFeedbackFlow',
     inputSchema: ResumeAnalysisInputSchema,
     outputSchema: ResumeAnalysisOutputSchema,
+    auth: { policy: 'require' },
   },
   async input => {
+    const uid = getFirebaseUid();
+    if (uid) {
+        const userDocRef = doc(db, 'users', uid);
+        await setDoc(userDocRef, { 
+            lastResumeAnalysis: serverTimestamp() as Timestamp,
+        }, { merge: true });
+    }
+
     const {output} = await prompt(input);
     return output!;
   }

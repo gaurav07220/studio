@@ -32,12 +32,13 @@ interface Message {
 }
 
 const INTERVIEW_COMPLETE_SIGNAL = "INTERVIEW_COMPLETE";
+const FREE_PLAN_INTERVIEW_LIMIT = 2;
 
 const UpgradePrompt = ({ onStartNew }: { onStartNew: () => void }) => (
     <Card className="mt-4 border-primary/50">
         <CardHeader>
             <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Unlock Your Full Potential</CardTitle>
-            <CardDescription>You've completed the trial question. Upgrade to Pro to continue the interview and get your full performance report.</CardDescription>
+            <CardDescription>You've completed the free trial of {FREE_PLAN_INTERVIEW_LIMIT} questions. Upgrade to Pro to continue the interview and get your full performance report.</CardDescription>
         </CardHeader>
         <CardFooter className="gap-4">
             <Button asChild>
@@ -194,7 +195,7 @@ export default function AiInterviewerPage() {
     if (!input.trim() || isPending) return;
     
     // Check for free plan limit
-    if (profile?.plan === 'free' && messages.filter(m => m.role === 'user').length >= 1) {
+    if (profile?.plan === 'free' && messages.filter(m => m.role === 'user').length >= FREE_PLAN_INTERVIEW_LIMIT) {
         setShowUpgradePrompt(true);
         setInput("");
         return;

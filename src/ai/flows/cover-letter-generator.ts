@@ -11,6 +11,10 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { getFirebaseUid } from 'genkit/next';
+import { doc, getDoc, setDoc, increment } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
 
 const CoverLetterGeneratorInputSchema = z.object({
   resumeText: z.string().describe('The full text of the user\'s resume.'),
@@ -58,9 +62,27 @@ const generateCoverLetterFlow = ai.defineFlow(
     name: 'generateCoverLetterFlow',
     inputSchema: CoverLetterGeneratorInputSchema,
     outputSchema: CoverLetterGeneratorOutputSchema,
+    auth: { policy: 'require' },
   },
   async input => {
+    const uid = getFirebaseUid();
+    if (!uid) throw new Error("User must be authenticated.");
+
+    const userDocRef = doc(db, 'users', uid);
+    const userDoc = await getDoc(userDocRef);
+    const userProfile = userDoc.data();
+
+    if (userProfile?.plan === 'free' && (userProfile?.coverLettersGenerated || 0) >= 1) {
+        throw new Error("Free plan limit reached. Upgrade to Pro to generate more cover letters.");
+    }
+    
     const {output} = await prompt(input);
+    
+    // Increment count for free users
+    if (userProfile?.plan === 'free') {
+        await setDoc(userDocRef, { coverLettersGenerated: increment(1) }, { merge: true });
+    }
+
     return output!;
   }
 );
