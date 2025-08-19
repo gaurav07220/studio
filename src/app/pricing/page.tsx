@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Check, Lock, Star } from "lucide-react";
+import { Check, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,132 +13,40 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
-import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
-import { createOrder, verifyPayment } from "@/ai/flows/payment";
-import { useEffect, useState } from "react";
 
 const tiers = [
   {
     name: "Free",
-    price: "₹0",
-    priceAmount: 0,
-    description: "Essential tools to get you started.",
+    price: "Free",
+    description: "Essential tools to get you started on your career path.",
     features: [
       "Resume Analysis & Feedback",
       "Job Description Matcher",
+      "AI Interview Practice",
+      "Cover Letter Generation",
       "Upskilling Recommendations",
       "Job Market Insights",
-      "1 Free AI Interview Question",
     ],
-    cta: "You are on this plan",
-    planId: 'free',
+    cta: "Your Current Plan",
     popular: false,
   },
   {
     name: "Pro",
-    price: "₹499",
-    priceAmount: 499,
-    description: "Unlock your full potential with advanced AI tools.",
+    price: "Coming Soon",
+    description: "Unlock your full potential with advanced AI tools and priority support.",
     features: [
       "All features in the Free plan",
-      "Unlimited AI Mock Interviews",
-      "Cover Letter Generator",
+      "Advanced Resume Analytics",
+      "In-depth Interview Feedback",
       "Priority Support",
     ],
-    cta: "Upgrade to Pro",
-    planId: 'pro',
+    cta: "Notify Me",
     popular: true,
   },
 ];
 
-declare global {
-    interface Window {
-        Razorpay: any;
-    }
-}
-
 export default function PricingPage() {
-    const { profile, updateProfile, user } = useAuth();
-    const { toast } = useToast();
-    const router = useRouter();
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        const script = document.createElement("script");
-        script.src = "https://checkout.razorpay.com/v1/checkout.js";
-        script.async = true;
-        document.body.appendChild(script);
-    }, []);
-
-    const handleUpgrade = async (tier: typeof tiers[0]) => {
-        if (!user) {
-            router.push('/login?redirect=/pricing');
-            return;
-        }
-
-        if (tier.planId !== 'pro') return;
-        setLoading(true);
-
-        try {
-            const order = await createOrder({ amount: tier.priceAmount, currency: 'INR' });
-            
-            if (!order || !order.id) {
-                throw new Error("Order creation failed.");
-            }
-
-            const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                amount: order.amount,
-                currency: order.currency,
-                name: "CareerAI Pro",
-                description: "Pro Plan Subscription",
-                order_id: order.id,
-                handler: async function (response: any) {
-                    try {
-                        const verificationResult = await verifyPayment({
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                        });
-
-                        if (verificationResult.signatureIsValid) {
-                            await updateProfile({ plan: 'pro' });
-                             toast({
-                                title: "Upgrade Successful!",
-                                description: "Welcome to the Pro plan. You now have access to all features.",
-                            });
-                        } else {
-                            throw new Error("Payment verification failed.");
-                        }
-                    } catch (verifyError) {
-                        toast({
-                            variant: 'destructive',
-                            title: "Payment Failed",
-                            description: "Your payment could not be verified. Please contact support.",
-                        });
-                    }
-                },
-                prefill: {
-                    name: profile?.name || user.email,
-                    email: user.email,
-                },
-                theme: {
-                    color: "#6D28D9"
-                }
-            };
-            const rzp1 = new window.Razorpay(options);
-            rzp1.open();
-        } catch (error) {
-             toast({
-                variant: 'destructive',
-                title: "Upgrade Failed",
-                description: error instanceof Error ? error.message : "We couldn't process your upgrade. Please try again.",
-            });
-        } finally {
-            setLoading(false);
-        }
-    }
+    const { profile } = useAuth();
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
@@ -147,7 +55,7 @@ export default function PricingPage() {
           Find the Plan That's Right for You
         </h1>
         <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
-          Unlock your full career potential with CareerAI. Choose a plan that fits your needs and goals.
+          Our platform is currently free for all users. Pro features are coming soon!
         </p>
       </header>
 
@@ -171,7 +79,6 @@ export default function PricingPage() {
               <CardTitle>{tier.name}</CardTitle>
               <CardDescription>{tier.description}</CardDescription>
               <div className="text-4xl font-bold pt-4">{tier.price}</div>
-              <p className="text-sm text-muted-foreground">{tier.price.startsWith('₹') && tier.name !== 'Free' ? '/ month' : ' '}</p>
             </CardHeader>
             <CardContent className="flex-1">
               <ul className="space-y-3">
@@ -184,15 +91,9 @@ export default function PricingPage() {
               </ul>
             </CardContent>
             <CardFooter>
-               {profile?.plan === tier.planId ? (
-                 <Button className="w-full" disabled>
-                    Your Current Plan
+               <Button className="w-full" disabled={tier.name !== 'Pro'}>
+                    {tier.cta}
                 </Button>
-               ) : (
-                <Button className="w-full" variant={tier.popular ? "default" : "outline"} onClick={() => handleUpgrade(tier)} disabled={loading || tier.planId === 'free'}>
-                    {loading && tier.planId === 'pro' ? 'Processing...' : tier.cta}
-                </Button>
-               )}
             </CardFooter>
           </Card>
         ))}
@@ -200,5 +101,3 @@ export default function PricingPage() {
     </div>
   );
 }
-
-    

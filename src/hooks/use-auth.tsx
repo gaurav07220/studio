@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                  const defaultProfile: UserProfile = { 
                     name: user.email?.split('@')[0] || 'User',
                     photoURL: user.photoURL || '',
-                    plan: 'free', // Assign free plan on initial creation
+                    plan: 'free',
                  };
                  await setDoc(userDocRef, defaultProfile);
                  setProfile(defaultProfile);

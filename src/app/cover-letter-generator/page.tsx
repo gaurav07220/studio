@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { PenSquare, Loader2, Clipboard, Send, Lock } from "lucide-react";
+import { PenSquare, Loader2, Clipboard, Send } from "lucide-react";
 import { generateCoverLetter } from "@/ai/flows/cover-letter-generator";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +16,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import Link from "next/link";
 
 export default function CoverLetterGeneratorPage() {
   const [isPending, startTransition] = useTransition();
@@ -24,8 +23,7 @@ export default function CoverLetterGeneratorPage() {
   const [jobDescriptionText, setJobDescriptionText] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const { toast } = useToast();
-  const { updateLastActivity, profile } = useAuth();
-  const isProUser = profile?.plan === 'pro';
+  const { updateLastActivity } = useAuth();
 
   useEffect(() => {
     updateLastActivity('/cover-letter-generator');
@@ -73,26 +71,6 @@ export default function CoverLetterGeneratorPage() {
       description: "Email sending is for demonstration purposes only.",
     });
   };
-
-  if (!isProUser) {
-    return (
-        <div className="p-4 md:p-8 flex flex-col items-center justify-center gap-4 text-center min-h-[calc(100vh-8rem)]">
-            <Card className="max-w-md">
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-center gap-2"><Lock className="text-primary"/> Pro Feature Locked</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">The Cover Letter Generator is a premium feature. Please upgrade to a Pro plan to create personalized cover letters.</p>
-                </CardContent>
-                <CardFooter>
-                    <Button asChild className="w-full">
-                        <Link href="/pricing">Upgrade to Pro</Link>
-                    </Button>
-                </CardFooter>
-            </Card>
-        </div>
-    )
-  }
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
