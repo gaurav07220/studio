@@ -37,7 +37,7 @@ export interface UserProfile {
         page: string;
         timestamp: Timestamp;
     };
-    coverLettersGenerated?: number;
+    interviewsStarted?: number;
 }
 
 interface AuthContextType {
@@ -132,7 +132,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     name: user.email?.split('@')[0] || 'User',
                     photoURL: user.photoURL || '',
                     plan: 'free',
-                    coverLettersGenerated: 0,
+                    interviewsStarted: 0,
                  };
                  await setDoc(doc(db, "users", user.uid), defaultProfile);
                  setProfile(defaultProfile);
@@ -155,7 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           name: cred.user.email?.split('@')[0] || 'User',
           photoURL: cred.user.photoURL || '',
           plan: 'free',
-          coverLettersGenerated: 0,
+          interviewsStarted: 0,
       };
       await setDoc(userDocRef, defaultProfile);
       setProfile(defaultProfile);

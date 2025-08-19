@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
-import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText, Sparkles } from "lucide-react";
+import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText, Sparkles, Lock } from "lucide-react";
 import { conductInterview } from "@/ai/flows/ai-interviewer";
 import { textToSpeech } from "@/ai/flows/text-to-speech";
 import { Button } from "@/components/ui/button";
@@ -33,20 +33,26 @@ interface Message {
 
 const INTERVIEW_COMPLETE_SIGNAL = "INTERVIEW_COMPLETE";
 const FREE_PLAN_INTERVIEW_LIMIT = 2;
+const FREE_PLAN_TOTAL_INTERVIEWS_LIMIT = 1;
 
-const UpgradePrompt = ({ onStartNew }: { onStartNew: () => void }) => (
+const UpgradePrompt = ({ onStartNew, context }: { onStartNew?: () => void, context: 'during' | 'before' }) => (
     <Card className="mt-4 border-primary/50">
         <CardHeader>
             <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Unlock Your Full Potential</CardTitle>
-            <CardDescription>You've answered your {FREE_PLAN_INTERVIEW_LIMIT} free questions. Upgrade to Pro to continue the interview and get your full performance report.</CardDescription>
+            <CardDescription>
+                {context === 'during' ? 
+                    `You've answered your ${FREE_PLAN_INTERVIEW_LIMIT} free questions. Upgrade to Pro to continue the interview and get your full performance report.`
+                    : `You've used all your free interview sessions. Upgrade to Pro for unlimited mock interviews.`
+                }
+            </CardDescription>
         </CardHeader>
         <CardFooter className="gap-4">
             <Button asChild>
                 <Link href="/pricing">Upgrade to Pro</Link>
             </Button>
-            <Button variant="outline" onClick={onStartNew}>
+            {onStartNew && <Button variant="outline" onClick={onStartNew}>
                 Start New Interview
-            </Button>
+            </Button>}
         </CardFooter>
     </Card>
 );
@@ -62,8 +68,10 @@ export default function AiInterviewerPage() {
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { user, profile, updateLastActivity } = useAuth();
+  const { user, profile, updateLastActivity, refreshProfile } = useAuth();
   
+  const hasExceededFreeStarts = profile?.plan === 'free' && (profile?.interviewsStarted || 0) >= FREE_PLAN_TOTAL_INTERVIEWS_LIMIT;
+
   useEffect(() => {
     updateLastActivity('/ai-interviewer');
   }, [updateLastActivity]);
@@ -157,6 +165,7 @@ export default function AiInterviewerPage() {
     setInput("");
     setShowUpgradePrompt(false);
     setJobDescription("");
+    refreshProfile();
   }
 
   const handleStartInterview = () => {
@@ -179,8 +188,10 @@ export default function AiInterviewerPage() {
         try {
             const res = await conductInterview({
                 jobDescription,
-                history: []
+                history: [],
+                isNewInterview: true,
             });
+            await refreshProfile();
             const audioRes = await textToSpeech(res.response);
             const assistantMessage: Message = { role: "assistant", content: res.response, audioUrl: audioRes.media };
             setMessages([assistantMessage]);
@@ -286,11 +297,13 @@ export default function AiInterviewerPage() {
               className="h-64"
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
+              disabled={hasExceededFreeStarts}
             />
+             {hasExceededFreeStarts && <UpgradePrompt context="before" />}
           </CardContent>
           <CardFooter>
-            <Button onClick={handleStartInterview} disabled={isPending || !jobDescription.trim()}>
-              {isPending ? <Loader2 className="mr-2 animate-spin" /> : <ClipboardList className="mr-2" />}
+            <Button onClick={handleStartInterview} disabled={isPending || !jobDescription.trim() || hasExceededFreeStarts}>
+              {hasExceededFreeStarts ? <Lock className="mr-2"/> : (isPending ? <Loader2 className="mr-2 animate-spin" /> : <ClipboardList className="mr-2" />)}
               Start Interview
             </Button>
           </CardFooter>
@@ -325,7 +338,7 @@ export default function AiInterviewerPage() {
                       </div>
                   </div>
               )}
-               {showUpgradePrompt && <UpgradePrompt onStartNew={resetInterview} />}
+               {showUpgradePrompt && <UpgradePrompt onStartNew={resetInterview} context="during" />}
             </CardContent>
           </ScrollArea>
           
