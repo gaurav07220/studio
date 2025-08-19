@@ -1,6 +1,7 @@
 
 "use client";
 
+import * as React from "react";
 import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -451,5 +452,4 @@ export default function ResumeAnalyzerPage() {
       )}
     </div>
   );
-
-    
+}
