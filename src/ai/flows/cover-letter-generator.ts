@@ -11,7 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { getFirebaseUid } from 'genkit/next';
+import { getFirebaseUid } from '@genkit-ai/next';
 import { doc, getDoc, setDoc, increment } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
