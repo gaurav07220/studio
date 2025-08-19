@@ -46,32 +46,6 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { useAuth } from "@/hooks/use-auth";
 
-const ProFeatureLock = () => (
-    <div className="relative blur-sm pointer-events-none">
-        <div className="absolute inset-0 bg-background/20 z-10"></div>
-        <Card>
-            <CardHeader>
-                <CardTitle>Dummy Title</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p>Dummy content to establish height.</p>
-                <p>More dummy content.</p>
-            </CardContent>
-        </Card>
-    </div>
-);
-
-const UpgradeOverlay = () => (
-    <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center z-20 rounded-lg border-2 border-dashed border-primary/50">
-        <Lock className="w-12 h-12 text-primary" />
-        <h3 className="font-headline text-xl font-bold mt-4">Unlock Full Report & Templates</h3>
-        <p className="text-muted-foreground mt-2 text-center max-w-sm">Upgrade to Pro to access detailed feedback, keyword analysis, and professional templates.</p>
-        <Button asChild className="mt-4">
-            <Link href="/pricing">Upgrade to Pro</Link>
-        </Button>
-    </div>
-)
-
 
 export default function ResumeAnalyzerPage() {
   const [isPending, startTransition] = useTransition();
@@ -84,7 +58,7 @@ export default function ResumeAnalyzerPage() {
   const classicRef = useRef<HTMLDivElement>(null);
   const creativeRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState("modern");
-  const { profile, updateLastActivity } = useAuth();
+  const { updateLastActivity } = useAuth();
 
   useEffect(() => {
     updateLastActivity('/resume-analyzer');
@@ -222,8 +196,6 @@ export default function ResumeAnalyzerPage() {
     }
   };
 
-  const isPro = profile?.plan === 'pro';
-
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
       <header>
@@ -339,50 +311,39 @@ export default function ResumeAnalyzerPage() {
             </CardContent>
           </Card>
 
-          <div className="relative">
-              {!isPro && <UpgradeOverlay />}
-
+          <div className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {isPro ? (
-                    <>
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-green-600">
-                              <CheckCircle2 /> Strengths
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <ul className="list-disc space-y-2 pl-5">
-                              {result.strengths.map((item, i) => (
-                                <li key={i}>{item}</li>
-                              ))}
-                            </ul>
-                          </CardContent>
-                        </Card>
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-yellow-600">
-                              <AlertTriangle /> Areas for Improvement
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <ul className="list-disc space-y-2 pl-5">
-                              {result.areasForImprovement.map((item, i) => (
-                                <li key={i}>{item}</li>
-                              ))}
-                            </ul>
-                          </CardContent>
-                        </Card>
-                    </>
-                  ) : (
-                    <>
-                       <ProFeatureLock />
-                       <ProFeatureLock />
-                    </>
-                  )}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-green-600">
+                        <CheckCircle2 /> Strengths
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="list-disc space-y-2 pl-5">
+                        {result.strengths.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-yellow-600">
+                        <AlertTriangle /> Areas for Improvement
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="list-disc space-y-2 pl-5">
+                        {result.areasForImprovement.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
               </div>
           
-               <Card className={cn("mt-8", !isPro && 'blur-sm pointer-events-none')}>
+               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2"><Sparkles /> Keyword Analysis</CardTitle>
                 </CardHeader>
@@ -400,7 +361,7 @@ export default function ResumeAnalyzerPage() {
                 </CardContent>
               </Card>
               
-               <Card className={cn("mt-8", !isPro && 'blur-sm pointer-events-none')}>
+               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2"><Lightbulb /> Formatting & Readability</CardTitle>
                 </CardHeader>
@@ -417,7 +378,7 @@ export default function ResumeAnalyzerPage() {
                 </CardContent>
               </Card>
 
-              <Card className={cn("mt-8", !isPro && 'blur-sm pointer-events-none')}>
+              <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2"><ClipboardCheck /> ATS-Friendly Templates</CardTitle>
                   <CardDescription>
