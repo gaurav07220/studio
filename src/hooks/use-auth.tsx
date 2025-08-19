@@ -15,8 +15,10 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from "firebase/auth";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, storage } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+
 
 // User profile data structure
 export interface UserProfile {
@@ -25,6 +27,7 @@ export interface UserProfile {
     summary?: string;
     linkedin?: string;
     portfolio?: string;
+    photoURL?: string;
 }
 
 interface AuthContextType {
@@ -35,6 +38,7 @@ interface AuthContextType {
   signIn: (email: string, pass: string) => Promise<any>;
   signOut: () => Promise<void>;
   updateProfile: (profileData: UserProfile) => Promise<void>;
+  uploadProfilePicture: (file: File, onProgress: (progress: number) => void) => Promise<string>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -55,7 +59,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setProfile(userDoc.data() as UserProfile);
             } else {
                 // If no profile, create a default one
-                 const defaultProfile = { name: user.email?.split('@')[0] || 'User' };
+                 const defaultProfile = { 
+                    name: user.email?.split('@')[0] || 'User',
+                    photoURL: user.photoURL || ''
+                 };
                  await setDoc(doc(db, "users", user.uid), defaultProfile);
                  setProfile(defaultProfile);
             }
@@ -88,8 +95,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setProfile(prev => ({...prev, ...profileData}));
   }
 
+  const uploadProfilePicture = (file: File, onProgress: (progress: number) => void): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        if (!user) return reject("Not authenticated");
+
+        const storageRef = ref(storage, `profile_pictures/${user.uid}/${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                onProgress(progress);
+            },
+            (error) => {
+                reject(error);
+            },
+            async () => {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                await updateProfile({ photoURL: downloadURL });
+                resolve(downloadURL);
+            }
+        );
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, updateProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, updateProfile, uploadProfilePicture }}>
       {children}
     </AuthContext.Provider>
   );

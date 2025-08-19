@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,15 +20,18 @@ import { useToast } from "@/hooks/use-toast";
 
 
 export default function ProfilePage() {
-    const { user, loading, profile, updateProfile } = useAuth();
+    const { user, loading, profile, updateProfile, uploadProfilePicture } = useAuth();
     const { toast } = useToast();
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [formData, setFormData] = useState({
         name: '',
         headline: '',
         summary: '',
         linkedin: '',
         portfolio: '',
+        photoURL: '',
     });
 
     useEffect(() => {
@@ -39,6 +42,7 @@ export default function ProfilePage() {
                 summary: profile.summary || '',
                 linkedin: profile.linkedin || '',
                 portfolio: profile.portfolio || '',
+                photoURL: profile.photoURL || '',
             });
         }
     }, [profile]);
@@ -68,6 +72,25 @@ export default function ProfilePage() {
         }
     };
 
+    const handlePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && user) {
+            setIsUploading(true);
+            try {
+                const photoURL = await uploadProfilePicture(file, (progress) => {
+                    // You can use this progress callback to show an upload indicator
+                    console.log('Upload is ' + progress + '% done');
+                });
+                setFormData(prev => ({ ...prev, photoURL }));
+                toast({ title: "Photo Updated", description: "Your new profile picture has been saved." });
+            } catch (error) {
+                toast({ variant: "destructive", title: "Upload Failed", description: "Could not upload the new picture." });
+            } finally {
+                setIsUploading(false);
+            }
+        }
+    };
+
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
@@ -94,7 +117,7 @@ export default function ProfilePage() {
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="email">Email Address</Label>
-                        <Input id="email" type="email" value={user.email} disabled />
+                        <Input id="email" type="email" value={user.email ?? ''} disabled />
                     </div>
                 </CardContent>
             </Card>
@@ -131,11 +154,12 @@ export default function ProfilePage() {
                 </CardHeader>
                 <CardContent className="flex flex-col items-center gap-4">
                     <Avatar className="w-32 h-32">
-                        <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} data-ai-hint="user avatar" />
-                        <AvatarFallback>{formData.name.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                        <AvatarImage src={formData.photoURL} data-ai-hint="user avatar" />
+                        <AvatarFallback>{formData.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
-                     <Button variant="outline" disabled>
-                        <Upload className="mr-2" />
+                    <input type="file" ref={fileInputRef} onChange={handlePictureUpload} accept="image/*" className="hidden" />
+                     <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                        {isUploading ? <Loader2 className="mr-2 animate-spin" /> : <Upload className="mr-2" />}
                         Upload Photo
                     </Button>
                 </CardContent>

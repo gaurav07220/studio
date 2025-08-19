@@ -61,20 +61,6 @@ const features = [
     href: "/upskilling-recommender",
   },
   {
-    icon: Users,
-    title: "Network Connector",
-    description:
-      "Receive tailored recommendations for professionals and groups to expand your network on LinkedIn.",
-    href: "/network-connector",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Community Hub",
-    description:
-      "Engage with peers, climb the leaderboard, and get job referrals to stay ahead.",
-    href: "/community",
-  },
-  {
     icon: TrendingUp,
     title: "Job Market Insights",
     description:

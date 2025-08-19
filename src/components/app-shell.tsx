@@ -35,13 +35,11 @@ const mainNavItems = [
   { href: "/resume-analyzer", label: "Resume Analyzer" },
   { href: "/job-matcher", label: "Job Matcher" },
   { href: "/ai-interviewer", label: "AI Interviewer" },
-  { href: "/community", label: "Community" },
   { href: "/job-market", label: "Job Market" },
 ];
 
 const moreNavItems = [
   { href: "/cover-letter-generator", label: "Cover Letter" },
-  { href: "/network-connector", label: "Network Connector" },
   { href: "/upskilling-recommender", label: "Upskilling" },
 ]
 
@@ -74,7 +72,7 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [openMobileMenu, setOpenMobileMenu] = React.useState(false);
-  const { user, loading, signOut } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
   const pathname = usePathname();
 
   const isAuthPage = pathname === '/login' || pathname === '/signup';
@@ -175,7 +173,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                       <AvatarImage src={`https://i.pravatar.cc/150?u=${user.email}`} data-ai-hint="user avatar" />
+                       <AvatarImage src={profile?.photoURL} data-ai-hint="user avatar" />
                        <AvatarFallback>{user.email?.[0]?.toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </Button>
