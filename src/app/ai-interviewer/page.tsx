@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
-import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText, Lock } from "lucide-react";
+import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText, Lock, Star } from "lucide-react";
 import { conductInterview } from "@/ai/flows/ai-interviewer";
 import { textToSpeech } from "@/ai/flows/text-to-speech";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ export default function AiInterviewerPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [report, setReport] = useState("");
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { updateLastActivity, profile } = useAuth();
@@ -144,6 +145,7 @@ export default function AiInterviewerPage() {
     setMessages([]);
     setReport("");
     setInterviewFinished(false);
+    setShowUpgradePrompt(false);
     
     startTransition(async () => {
         try {
@@ -174,6 +176,13 @@ export default function AiInterviewerPage() {
     setMessages(newMessages);
     setInput("");
 
+    // Free user trial limit check
+    const userAnswersCount = newMessages.filter(m => m.role === 'user').length;
+    if (!isProUser && userAnswersCount >= 1) {
+        setShowUpgradePrompt(true);
+        return;
+    }
+
     startTransition(async () => {
       try {
         const res = await conductInterview({
@@ -194,7 +203,7 @@ export default function AiInterviewerPage() {
           setMessages((prev) => [...prev, assistantMessage]);
         }
 
-      } catch (error) {
+      } catch (error) => {
         toast({
           variant: "destructive",
           title: "Message Failed",
@@ -206,6 +215,11 @@ export default function AiInterviewerPage() {
   };
   
   const handleEndInterview = () => {
+    if (!isProUser) {
+        setShowUpgradePrompt(true);
+        return;
+    }
+
     startTransition(async () => {
         try {
             const endMessage: Message = { role: "user", content: "Please end the interview and provide the report." };
@@ -229,32 +243,31 @@ export default function AiInterviewerPage() {
     });
   }
 
-  if (!isProUser) {
-    return (
-        <div className="p-4 md:p-8 flex flex-col items-center justify-center gap-4 text-center min-h-[calc(100vh-8rem)]">
-            <Card className="max-w-md">
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-center gap-2"><Lock className="text-primary"/> Pro Feature Locked</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">The AI Mock Interviewer is a premium feature. Please upgrade to a Pro plan to practice for your interviews.</p>
-                </CardContent>
-                <CardFooter>
-                    <Button asChild className="w-full">
-                        <Link href="/pricing">Upgrade to Pro</Link>
-                    </Button>
-                </CardFooter>
-            </Card>
-        </div>
-    )
-  }
+  const UpgradePrompt = () => (
+     <div className="p-4 border-t bg-amber-50 border-amber-200">
+        <Card className="shadow-none border-amber-300">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-amber-800"><Star className="text-amber-500" /> Unlock Your Full Potential</CardTitle>
+                <CardDescription>You've completed your free question. Upgrade to Pro to continue the interview and get a full performance report.</CardDescription>
+            </CardHeader>
+            <CardFooter className="gap-4">
+                <Button asChild>
+                    <Link href="/pricing">Upgrade to Pro</Link>
+                </Button>
+                 <Button variant="ghost" onClick={() => setInterviewStarted(false)}>
+                    Start New Interview
+                </Button>
+            </CardFooter>
+        </Card>
+     </div>
+  );
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
       <header>
         <h1 className="font-headline text-4xl font-bold tracking-tight">AI Mock Interviewer</h1>
         <p className="mt-2 text-muted-foreground">
-          Practice your interview skills against an AI tailored to a specific job.
+          Practice your interview skills against an AI tailored to a specific job. Get one free question, or upgrade to Pro for unlimited practice.
         </p>
       </header>
 
@@ -301,7 +314,7 @@ export default function AiInterviewerPage() {
                   )}
                 </div>
               ))}
-              {isPending && messages[messages.length-1]?.role === 'user' && (
+              {isPending && messages[messages.length-1]?.role === 'user' && !showUpgradePrompt && (
                   <div className="flex items-start gap-3 justify-start">
                       <Avatar className="h-8 w-8 border-2 border-primary"><AvatarFallback className="bg-primary text-primary-foreground"><BrainCircuit className="h-5 w-5"/></AvatarFallback></Avatar>
                       <div className="max-w-xs rounded-lg p-3 bg-muted flex items-center">
@@ -312,7 +325,9 @@ export default function AiInterviewerPage() {
             </CardContent>
           </ScrollArea>
           
-          {!interviewFinished ? (
+          {showUpgradePrompt ? (
+            <UpgradePrompt />
+          ) : !interviewFinished ? (
             <CardFooter className="p-4 border-t">
               <form onSubmit={handleSubmitMessage} className="flex items-center gap-2 w-full">
                 <Input
@@ -365,3 +380,5 @@ export default function AiInterviewerPage() {
     </div>
   );
 }
+
+    
