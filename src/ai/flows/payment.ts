@@ -119,5 +119,3 @@ const verifyPaymentFlow = ai.defineFlow(
         return { signatureIsValid };
     }
 );
-
-    
