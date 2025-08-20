@@ -267,16 +267,25 @@ export default function AiInterviewerPage() {
     });
   }
 
-  return (
-    <div className="p-4 md:p-8 flex flex-col gap-8">
-      <header>
-        <h1 className="font-headline text-4xl font-bold tracking-tight">AI Mock Interviewer</h1>
-        <p className="mt-2 text-muted-foreground">
-          Practice your interview skills against an AI tailored to a specific job.
-        </p>
-      </header>
+  const renderContent = () => {
+    if (profile?.plan === 'free') {
+        return (
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Lock className="text-primary"/> Pro Feature</CardTitle>
+                    <CardDescription>The AI Interviewer is a Pro feature. Upgrade your plan to practice for your next interview.</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                     <Button asChild>
+                        <Link href="/pricing">Upgrade to Pro</Link>
+                    </Button>
+                </CardFooter>
+            </Card>
+        )
+    }
 
-      {!interviewStarted ? (
+    if (!interviewStarted) {
+      return (
         <Card>
           <CardHeader>
             <CardTitle>Job Description</CardTitle>
@@ -297,7 +306,10 @@ export default function AiInterviewerPage() {
             </Button>
           </CardFooter>
         </Card>
-      ) : (
+      );
+    }
+    
+    return (
         <Card className="flex flex-col h-[70vh]">
           <CardHeader>
             <CardTitle>Interview in Progress</CardTitle>
@@ -365,7 +377,19 @@ export default function AiInterviewerPage() {
             )}
           </CardFooter>
         </Card>
-      )}
+    )
+  }
+
+  return (
+    <div className="p-4 md:p-8 flex flex-col gap-8">
+      <header>
+        <h1 className="font-headline text-4xl font-bold tracking-tight">AI Mock Interviewer</h1>
+        <p className="mt-2 text-muted-foreground">
+          Practice your interview skills against an AI tailored to a specific job.
+        </p>
+      </header>
+
+      {renderContent()}
 
       {interviewFinished && report && (
         <Card>
@@ -381,3 +405,5 @@ export default function AiInterviewerPage() {
     </div>
   );
 }
+
+    
