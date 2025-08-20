@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,6 +19,7 @@ import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -28,35 +30,24 @@ export default function SignupPage() {
   const [jobRole, setJobRole] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { signUp } = useAuth();
+  const router = useRouter();
+
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // Store additional user details in Firestore
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        fullName,
-        email,
-        phone,
-        linkedin,
-        jobRole,
-        createdAt: new Date().toISOString(),
-      });
-      setLoading(false);
-      toast({
-        title: "Signup successful!",
-        description: `Welcome, ${fullName || userCredential.user.email}!\nPhone: ${phone}\nLinkedIn: ${linkedin}\nJob Role: ${jobRole}`,
-      });
-      setEmail("");
-      setPassword("");
-      setFullName("");
-      setPhone("");
-      setLinkedin("");
-      setJobRole("");
-    } catch (error: any) {
-      setLoading(false);
-      toast({ title: "Signup failed", description: error.message });
+        await signUp(email, password);
+        router.push("/");
+    } catch(error) {
+        toast({
+            variant: "destructive",
+            title: "Signup Failed",
+            description: error instanceof Error ? error.message : "An unknown error occurred.",
+        });
+    } finally {
+        setLoading(false);
     }
   };
 

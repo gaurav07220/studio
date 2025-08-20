@@ -2,8 +2,9 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Lightbulb, Loader2 } from "lucide-react";
+import { Lightbulb, Loader2, ArrowRight, GraduationCap, School } from "lucide-react";
 import { upskillingRecommender, type UpskillingRecommenderOutput } from "@/ai/flows/upskilling-recommender";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,11 +13,24 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
+import { useAuth } from "@/hooks/use-auth";
+
+const createMarkup = (markdownText?: string) => {
+    if (typeof window !== 'undefined' && markdownText) {
+      const dirty = marked(markdownText, { breaks: true });
+      return { __html: DOMPurify.sanitize(dirty as string) };
+    }
+    return { __html: "" };
+  };
 
 export default function UpskillingRecommenderPage() {
   const [isPending, startTransition] = useTransition();
@@ -26,6 +40,11 @@ export default function UpskillingRecommenderPage() {
   const [result, setResult] = useState<UpskillingRecommenderOutput | null>(null);
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const { updateLastActivity } = useAuth();
+
+  useEffect(() => {
+    updateLastActivity('/upskilling-recommender');
+  }, [updateLastActivity]);
 
   useEffect(() => {
     const gaps = searchParams.get("skillGaps");
@@ -64,7 +83,7 @@ export default function UpskillingRecommenderPage() {
       }
     });
   };
-
+  
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
       <header>
@@ -153,36 +172,53 @@ export default function UpskillingRecommenderPage() {
       )}
       
       {result && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           <Card>
             <CardHeader>
               <CardTitle>Course Recommendations</CardTitle>
+              <CardDescription>Click on a course to view more details and enroll.</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-                  {result.courseRecommendations}
-              </div>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {result.courseRecommendations.map((course, index) => (
+                <Card key={index} className="flex flex-col">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{course.name}</CardTitle>
+                    <Badge variant="secondary" className="w-fit">
+                        <School className="mr-2"/>
+                        {course.platform}
+                    </Badge>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <p className="text-sm text-muted-foreground">{course.description}</p>
+                  </CardContent>
+                  <CardFooter>
+                    <Button asChild className="w-full">
+                        <Link href={course.url} target="_blank" rel="noopener noreferrer">
+                            View Course <ArrowRight className="ml-2"/>
+                        </Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
             </CardContent>
           </Card>
+          {result.certificationRecommendations && (
           <Card>
             <CardHeader>
-              <CardTitle>Certification Recommendations</CardTitle>
+              <CardTitle><GraduationCap className="inline-block mr-2" />Certification Recommendations</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-                  {result.certificationRecommendations}
-              </div>
+              <div className="prose prose-sm max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={createMarkup(result.certificationRecommendations)} />
             </CardContent>
           </Card>
+          )}
           {result.additionalResources && (
             <Card>
               <CardHeader>
                 <CardTitle>Additional Resources</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="prose prose-sm max-w-none whitespace-pre-wrap">
-                    {result.additionalResources}
-                </div>
+                <div className="prose prose-sm max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={createMarkup(result.additionalResources)} />
               </CardContent>
             </Card>
           )}

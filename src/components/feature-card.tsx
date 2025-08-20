@@ -1,3 +1,4 @@
+
 import { type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import {
@@ -23,11 +24,11 @@ export function FeatureCard({
   href,
 }: FeatureCardProps) {
   return (
-    <Link href={href} className="flex h-full">
-      <Card className="flex flex-col h-full transition-all hover:shadow-xl hover:-translate-y-1 w-full bg-card">
+    <Link href={href} className="flex h-full group">
+      <Card className="flex flex-col h-full transition-all group-hover:shadow-xl group-hover:-translate-y-1 w-full bg-card">
         <CardHeader className="flex flex-row items-start gap-4 pb-4">
-          <div className="bg-accent/10 p-3 rounded-lg">
-            <Icon className="w-6 h-6 text-accent" />
+          <div className="bg-primary/10 p-3 rounded-lg text-primary">
+            <Icon className="w-6 h-6" />
           </div>
           <div className="flex-1">
             <CardTitle className="font-headline text-lg">{title}</CardTitle>

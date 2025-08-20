@@ -12,6 +12,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+
 const AiInterviewerInputSchema = z.object({
   jobDescription: z.string().describe('The job description for the role.'),
   history: z.array(z.string()).describe('The conversation history between the AI and the user. Each entry is a string formatted as "role: content".'),
@@ -72,5 +73,3 @@ const conductInterviewFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    

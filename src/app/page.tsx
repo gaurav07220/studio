@@ -5,12 +5,12 @@ import {
   ArrowRight,
   Briefcase,
   Check,
-  ClipboardList,
   FileCheck,
   FileText,
   LayoutGrid,
   Lightbulb,
   MessageSquare,
+  PenSquare,
   Send,
   TrendingUp,
   UploadCloud,
@@ -39,7 +39,14 @@ const features = [
     href: "/job-matcher",
   },
   {
-    icon: ClipboardList,
+    icon: PenSquare,
+    title: "Cover Letter Generator",
+    description:
+        "Generate a personalized cover letter in seconds based on your resume and a job description.",
+    href: "/cover-letter-generator",
+  },
+  {
+    icon: MessageSquare,
     title: "AI Interviewer",
     description:
         "Practice your interviewing skills with an AI that asks questions based on a job description and provides feedback.",
@@ -51,20 +58,6 @@ const features = [
     description:
       "Identify skill gaps and discover personalized courses and certifications to advance your career.",
     href: "/upskilling-recommender",
-  },
-  {
-    icon: Users,
-    title: "Network Connector",
-    description:
-      "Receive tailored recommendations for professionals and groups to expand your network on LinkedIn.",
-    href: "/network-connector",
-  },
-  {
-    icon: MessageSquare,
-    title: "AI Career Coach",
-    description:
-      "Chat 24/7 with an AI coach for resume tips, job search strategies, and interview preparation.",
-    href: "/career-coach",
   },
   {
     icon: TrendingUp,
@@ -150,7 +143,7 @@ export default function Home() {
                   {`
                     @keyframes rotate {
                       from { transform: rotate(0deg); }
-                      to { transform: rotate(360deg); }
+                      to { transform: rotate(-360deg); }
                     }
                     @keyframes rotate-reverse {
                       from { transform: rotate(0deg); }
@@ -177,7 +170,7 @@ export default function Home() {
               
               <g id="gears" opacity="0.1" fill="hsl(var(--primary))">
                 <path className="gear" d="M256,218.8c-2.4-3-5.5-5.3-9-6.9c-4.2-2-8.8-3-13.5-2.8c-4.7,0.2-9.3,1.5-13.4,3.8c-4.1,2.3-7.5,5.5-10.1,9.3l-2.4,3.6c-1.3,2-2.9,3.8-4.8,5.3c-3.7,3-8.2,4.8-12.8,4.8c-4.7,0-9.1-1.8-12.8-4.8c-1.9-1.5-3.5-3.3-4.8-5.3l-2.4-3.6c-2.6-3.8-6-7-10.1-9.3c-4.1-2.3-8.7-3.6-13.4-3.8c-4.7-0.2-9.3,0.8-13.5,2.8c-3.5,1.6-6.6,3.9-9,6.9l-2.4,3.6c-1.3,2-2.9,3.8-4.8,5.3c-3.7,3-8.2,4.8-12.8,4.8c-4.7,0-9.1-1.8-12.8-4.8c-1.9-1.5-3.5-3.3-4.8-5.3l-2.4-3.6c-2.6-3.8-6-7-10.1-9.3c-4.1-2.3-8.7-3.6-13.4-3.8c-4.7-0.2-9.3,0.8-13.5,2.8c-3.5,1.6-6.6,3.9-9,6.9" />
-                <path className="gear-reverse" transform="translate(100, 250) scale(0.8)" d="M512.6,90.4c2.4,3,5.5,5.3,9,6.9c4.2,2,8.8,3,13.5,2.8c4.7-0.2,9.3-1.5,13.4-3.8c4.1-2.3,7.5-5.5,10.1-9.3l2.4-3.6c1.3-2,2.9-3.8,4.8-5.3c3.7-3,8.2-4.8,12.8-4.8c4.7,0,9.1,1.8,12.8,4.8c1.9,1.5,3.5,3.3,4.8,5.3l2.4,3.6c2.6,3.8,6,7,10.1,9.3c4.1,2.3,8.7,3.6,13.4,3.8c4.7,0.2,9.3-0.8,13.5-2.8c3.5-1.6,6.6-3.9,9-6.9l2.4-3.6c1.3-2,2.9-3.8,4.8-5.3c3.7-3,8.2-4.8,12.8-4.8c4.7,0,9.1,1.8,12.8,4.8c1.9,1.5,3.5,3.3,4.8,5.3l2.4,3.6c2.6,3.8,6,7,10.1,9.3c4.1,2.3,8.7,3.6,13.4,3.8c4.7,0.2,9.3-0.8,13.5-2.8c3.5-1.6,6.6-3.9,9-6.9" />
+                <path className="gear-reverse" transform="translate(100, 250) scale(0.8)" d="M512.6,90.4c2.4,3,5.5,5.3,9,6.9c4.2,2,8.8,3,13.5,2.8c4.7-0.2,9.3-1.5,13.4-3.8c4.1-2.3,7.5-5.5,10.1-9.3l2.4-3.6c1.3-2,2.9-3.8,4.8-5.3c3.7-3,8.2-4.8,12.8-4.8c4.7,0,9.1,1.8,12.8,4.8c1.9,1.5,3.5,3.3,4.8,5.3l2.4,3.6c2.6,3.8,6,7,10.1,9.3c4.1,2.3,8.7,3.6,13.4,3.8c4.7,0.2,9.3-0.8,13.5-2.8c3.5-1.6,6.6,3.9,9-6.9l2.4-3.6c1.3-2,2.9-3.8,4.8-5.3c3.7-3,8.2-4.8,12.8-4.8c4.7,0,9.1,1.8,12.8,4.8c1.9,1.5,3.5,3.3,4.8,5.3l2.4,3.6c2.6,3.8,6,7,10.1,9.3c4.1,2.3,8.7,3.6,13.4,3.8c4.7,0.2,9.3-0.8,13.5-2.8c3.5-1.6,6.6,3.9,9-6.9" />
               </g>
               <g id="center-piece" transform="translate(300, 200)">
                  <circle cx="0" cy="0" r="80" fill="hsl(var(--primary) / 0.1)" />
@@ -301,5 +294,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

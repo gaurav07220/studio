@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import * as React from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
   FileText,
@@ -17,6 +18,7 @@ import {
   ArrowRight,
   GraduationCap,
   Briefcase,
+  Lock,
 } from "lucide-react";
 
 import {
@@ -42,11 +44,11 @@ import { ClassicTemplate, ModernTemplate, CreativeTemplate, type TemplateData } 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { useAuth } from "@/hooks/use-auth";
 
 
 export default function ResumeAnalyzerPage() {
   const [isPending, startTransition] = useTransition();
-  const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState<string>("");
   const [fileName, setFileName] = useState<string>("");
   const [result, setResult] = useState<ResumeAnalysisOutput | null>(null);
@@ -56,6 +58,12 @@ export default function ResumeAnalyzerPage() {
   const classicRef = useRef<HTMLDivElement>(null);
   const creativeRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState("modern");
+  const { updateLastActivity } = useAuth();
+
+  useEffect(() => {
+    updateLastActivity('/resume-analyzer');
+  }, [updateLastActivity]);
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -65,10 +73,25 @@ export default function ResumeAnalyzerPage() {
         selectedFile.type ===
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
       ) {
-        setFile(selectedFile);
         setFileName(selectedFile.name);
         setResult(null);
         setTemplateData(null);
+        
+        const reader = new FileReader();
+        reader.readAsDataURL(selectedFile);
+        reader.onload = (e) => {
+          const dataUri = e.target?.result as string;
+          setFileContent(dataUri);
+        };
+        reader.onerror = () => {
+           toast({
+              variant: "destructive",
+              title: "File Read Error",
+              description: "Could not read the selected file.",
+            });
+            setFileContent("");
+        }
+
       } else {
         toast({
           variant: "destructive",
@@ -76,12 +99,14 @@ export default function ResumeAnalyzerPage() {
           description: "Please upload a PDF or DOCX file.",
         });
         event.target.value = "";
+        setFileContent("");
+        setFileName("");
       }
     }
   };
 
   const handleSubmit = async () => {
-    if (!file) {
+    if (!fileContent) {
       toast({
         variant: "destructive",
         title: "No file selected",
@@ -92,37 +117,23 @@ export default function ResumeAnalyzerPage() {
 
     startTransition(async () => {
       try {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async (e) => {
-          const dataUri = e.target?.result as string;
-          if (dataUri) {
-            setFileContent(dataUri);
-            const res = await resumeAnalysisFeedback({
-              resumeDataUri: dataUri,
-            });
-            setResult(res);
+        const res = await resumeAnalysisFeedback({
+          resumeDataUri: fileContent,
+        });
+        setResult(res);
 
-            // Map extracted data to template data format
-            const extracted = res.extractedData;
-            setTemplateData({
-                name: extracted.name || "Your Name",
-                email: extracted.email || "your.email@example.com",
-                phone: extracted.phone || "123-456-7890",
-                linkedin: extracted.linkedin || "linkedin.com/in/yourprofile",
-                summary: extracted.summary || "A brief professional summary.",
-                experience: extracted.experience || [],
-                education: extracted.education || [],
-                skills: extracted.skills || [],
-            });
-
-          } else {
-            throw new Error("Could not read file.");
-          }
-        };
-        reader.onerror = () => {
-          throw new Error("Error reading file.");
-        };
+        // Map extracted data to template data format
+        const extracted = res.extractedData;
+        setTemplateData({
+            name: extracted.name || "Your Name",
+            email: extracted.email || "your.email@example.com",
+            phone: extracted.phone || "123-456-7890",
+            linkedin: extracted.linkedin || "linkedin.com/in/yourprofile",
+            summary: extracted.summary || "A brief professional summary.",
+            experience: extracted.experience || [],
+            education: extracted.education || [],
+            skills: extracted.skills || [],
+        });
       } catch (error) {
         toast({
           variant: "destructive",
@@ -167,10 +178,13 @@ export default function ResumeAnalyzerPage() {
       }
     }
   };
-
-  const renderTemplateWithRef = (TemplateComponent: React.FC<{ data: TemplateData, ref?: React.Ref<HTMLDivElement> }>, ref: React.Ref<HTMLDivElement>) => (
-    templateData ? <TemplateComponent data={templateData} ref={ref} /> : <div>Loading template data...</div>
-  );
+  
+  const renderTemplateWithRef = (TemplateComponent: React.ComponentType<{ data: TemplateData }>, ref: React.Ref<HTMLDivElement>) => {
+    if (!templateData) return <div>Loading template data...</div>;
+    const componentElement = <TemplateComponent data={templateData} />;
+    return React.cloneElement(componentElement, { ref });
+  };
+  
 
   const renderPreviewTemplate = () => {
     if(!templateData) return <div/>;
@@ -180,8 +194,7 @@ export default function ResumeAnalyzerPage() {
         case 'modern':
         default: return <ModernTemplate data={templateData} />;
     }
-  }
-
+  };
 
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
@@ -213,7 +226,7 @@ export default function ResumeAnalyzerPage() {
                 accept=".pdf,.docx"
                 className="cursor-pointer"
               />
-              <Button onClick={handleSubmit} disabled={isPending || !file}>
+              <Button onClick={handleSubmit} disabled={isPending || !fileContent}>
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -298,130 +311,131 @@ export default function ResumeAnalyzerPage() {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-green-600">
-                  <CheckCircle2 /> Strengths
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc space-y-2 pl-5">
-                  {result.strengths.map((item, i) => (
-                    <li key={i}>{item}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-yellow-600">
-                  <AlertTriangle /> Areas for Improvement
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="list-disc space-y-2 pl-5">
-                  {result.areasForImprovement.map((item, i) => (
-                    <li key={i}>{item}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-          
-           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Sparkles /> Keyword Analysis</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="font-semibold mb-2">Extracted Keywords & Skills</h3>
-                <div className="flex flex-wrap gap-2">
-                    {result.keywordAnalysis.extractedKeywords.map(keyword => <Badge variant="secondary" key={keyword}>{keyword}</Badge>)}
-                </div>
-              </div>
-               <div>
-                <h3 className="font-semibold mb-2">Suggestions</h3>
-                <p className="text-sm text-muted-foreground">{result.keywordAnalysis.suggestions}</p>
-              </div>
-            </CardContent>
-          </Card>
-          
-           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Lightbulb /> Formatting & Readability</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-               <p className="text-sm text-muted-foreground">{result.formattingAndReadability.feedback}</p>
-                <div>
-                    <h3 className="font-semibold mb-2">Suggestions</h3>
-                    <ul className="list-disc space-y-2 pl-5">
-                        {result.formattingAndReadability.suggestions.map((item, i) => (
-                            <li key={i}>{item}</li>
+          <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-green-600">
+                        <CheckCircle2 /> Strengths
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="list-disc space-y-2 pl-5">
+                        {result.strengths.map((item, i) => (
+                          <li key={i}>{item}</li>
                         ))}
-                    </ul>
-                </div>
-            </CardContent>
-          </Card>
+                      </ul>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-yellow-600">
+                        <AlertTriangle /> Areas for Improvement
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="list-disc space-y-2 pl-5">
+                        {result.areasForImprovement.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+              </div>
+          
+               <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Sparkles /> Keyword Analysis</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold mb-2">Extracted Keywords & Skills</h3>
+                    <div className="flex flex-wrap gap-2">
+                        {result.keywordAnalysis.extractedKeywords.map(keyword => <Badge variant="secondary" key={keyword}>{keyword}</Badge>)}
+                    </div>
+                  </div>
+                   <div>
+                    <h3 className="font-semibold mb-2">Suggestions</h3>
+                    <p className="text-sm text-muted-foreground">{result.keywordAnalysis.suggestions}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+               <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Lightbulb /> Formatting & Readability</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                   <p className="text-sm text-muted-foreground">{result.formattingAndReadability.feedback}</p>
+                    <div>
+                        <h3 className="font-semibold mb-2">Suggestions</h3>
+                        <ul className="list-disc space-y-2 pl-5">
+                            {result.formattingAndReadability.suggestions.map((item, i) => (
+                                <li key={i}>{item}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </CardContent>
+              </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><ClipboardCheck /> ATS-Friendly Templates</CardTitle>
-              <CardDescription>
-                Your resume scored {result.atsCompatibilityScore}/100 for ATS compatibility. Consider using one of these standard, parser-friendly templates to improve your score. Your extracted information has been pre-filled.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-                {templateData ? (
-                <>
-                <Tabs defaultValue="modern" onValueChange={setActiveTab} value={activeTab}>
-                    <div className="flex justify-between items-center mb-4">
-                        <TabsList className="grid w-full max-w-md grid-cols-3">
-                            <TabsTrigger value="modern">Modern</TabsTrigger>
-                            <TabsTrigger value="classic">Classic</TabsTrigger>
-                            <TabsTrigger value="creative">Creative</TabsTrigger>
-                        </TabsList>
-                        <div className="flex gap-2">
-                             <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button variant="outline"><Eye className="mr-2 h-4 w-4" /> Preview</Button>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
-                                    <DialogHeader>
-                                        <DialogTitle>Resume Preview: {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</DialogTitle>
-                                    </DialogHeader>
-                                    <div className="flex-1 overflow-auto">
-                                        {renderPreviewTemplate()}
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                            <Button onClick={handleDownload}><Download className="mr-2 h-4 w-4" /> Download as PDF</Button>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><ClipboardCheck /> ATS-Friendly Templates</CardTitle>
+                  <CardDescription>
+                    Your resume scored {result.atsCompatibilityScore}/100 for ATS compatibility. Consider using one of these standard, parser-friendly templates to improve your score. Your extracted information has been pre-filled.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {templateData ? (
+                    <>
+                    <Tabs defaultValue="modern" onValueChange={setActiveTab} value={activeTab}>
+                        <div className="flex justify-between items-center mb-4">
+                            <TabsList className="grid w-full max-w-md grid-cols-3">
+                                <TabsTrigger value="modern">Modern</TabsTrigger>
+                                <TabsTrigger value="classic">Classic</TabsTrigger>
+                                <TabsTrigger value="creative">Creative</TabsTrigger>
+                            </TabsList>
+                            <div className="flex gap-2">
+                                 <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline"><Eye className="mr-2 h-4 w-4" /> Preview</Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
+                                        <DialogHeader>
+                                            <DialogTitle>Resume Preview: {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="flex-1 overflow-auto">
+                                            {renderPreviewTemplate()}
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                                <Button onClick={handleDownload}><Download className="mr-2 h-4 w-4" /> Download as PDF</Button>
+                            </div>
                         </div>
-                    </div>
-                    <div className="h-0 overflow-hidden">
-                        {/* Render templates off-screen for html2canvas */}
-                        {renderTemplateWithRef(ModernTemplate, modernRef)}
-                        {renderTemplateWithRef(ClassicTemplate, classicRef)}
-                        {renderTemplateWithRef(CreativeTemplate, creativeRef)}
-                    </div>
+                        <div className="h-0 overflow-hidden">
+                            {/* Render templates off-screen for html2canvas */}
+                            {renderTemplateWithRef(ModernTemplate, modernRef)}
+                            {renderTemplateWithRef(ClassicTemplate, creativeRef)}
+                            {renderTemplateWithRef(ClassicTemplate, classicRef)}
+                        </div>
 
-                    <TabsContent value="modern">
-                        <ModernTemplate data={templateData} />
-                    </TabsContent>
-                    <TabsContent value="classic">
-                        <ClassicTemplate data={templateData} />
-                    </TabsContent>
-                    <TabsContent value="creative">
-                        <CreativeTemplate data={templateData} />
-                    </TabsContent>
-                </Tabs>
-                </>
-                ) : (
-                    <div className="text-center text-muted-foreground">Loading extracted data...</div>
-                )}
-            </CardContent>
-          </Card>
-
+                        <TabsContent value="modern">
+                            <ModernTemplate data={templateData} />
+                        </TabsContent>
+                        <TabsContent value="classic">
+                            <ClassicTemplate data={templateData} />
+                        </TabsContent>
+                        <TabsContent value="creative">
+                            <CreativeTemplate data={templateData} />
+                        </TabsContent>
+                    </Tabs>
+                    </>
+                    ) : (
+                        <div className="text-center text-muted-foreground">Loading extracted data...</div>
+                    )}
+                </CardContent>
+              </Card>
+          </div>
         </div>
       )}
 

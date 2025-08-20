@@ -31,17 +31,24 @@ export type UpskillingRecommenderInput = z.infer<
   typeof UpskillingRecommenderInputSchema
 >;
 
+const CourseRecommendationSchema = z.object({
+    name: z.string().describe("The full name of the course."),
+    platform: z.string().describe("The platform where the course is offered (e.g., Coursera, Udemy)."),
+    description: z.string().describe("A brief, compelling summary of what the user will learn."),
+    url: z.string().url().describe("A direct, valid URL to the course enrollment page."),
+});
+
 const UpskillingRecommenderOutputSchema = z.object({
   courseRecommendations: z
-    .string()
-    .describe('Recommended courses to bridge the skill gaps.'),
+    .array(CourseRecommendationSchema)
+    .describe('A list of recommended courses to bridge the skill gaps.'),
   certificationRecommendations: z
     .string()
-    .describe('Recommended certifications to enhance career prospects.'),
+    .describe('Recommended certifications to enhance career prospects, in Markdown format.'),
   additionalResources: z
     .string()
     .optional()
-    .describe('Any additional resources that might be helpful.'),
+    .describe('Any additional resources that might be helpful, in Markdown format.'),
 });
 export type UpskillingRecommenderOutput = z.infer<
   typeof UpskillingRecommenderOutputSchema
@@ -68,9 +75,15 @@ Career Goals: {{{careerGoals}}}
 Preferred Learning Platforms: {{{preferredPlatforms}}}
 {{/if}}
 
-Consider platforms like Coursera, Udemy, edX, and LinkedIn Learning when making recommendations.
-
-Format your output clearly, separating course recommendations, certification recommendations, and any additional helpful resources.`,
+Your Task:
+1.  **Recommend Courses**: Suggest 2-4 specific courses from well-known platforms like Coursera, Udemy, edX, or LinkedIn Learning that directly address the user's skill gaps. For each course, provide:
+    *   **name:** The full name of the course.
+    *   **platform:** Where to find it (e.g., Coursera, Udemy).
+    *   **description:** A brief, compelling summary of what the user will learn.
+    *   **url:** A valid, direct URL to the course page. You must find a real, working URL.
+2.  **Recommend Certifications**: Suggest 1-2 relevant professional certifications that align with the user's career goals. Format this as a Markdown string.
+3.  **Provide Additional Resources**: If applicable, suggest other learning materials like books, blogs, or tutorials. Format this as a Markdown string.
+`,
 });
 
 const upskillingRecommenderFlow = ai.defineFlow(

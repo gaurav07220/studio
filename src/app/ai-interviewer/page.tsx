@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useTransition, useRef, useEffect } from "react";
-import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText } from "lucide-react";
+import { ClipboardList, Loader2, Send, User, BrainCircuit, Mic, Square, FileText, Sparkles, Lock } from "lucide-react";
 import { conductInterview } from "@/ai/flows/ai-interviewer";
 import { textToSpeech } from "@/ai/flows/text-to-speech";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { InterviewReport } from "@/components/interview-report";
+import { useAuth } from "@/hooks/use-auth";
+import Link from "next/link";
 
 
 interface Message {
@@ -30,6 +32,26 @@ interface Message {
 }
 
 const INTERVIEW_COMPLETE_SIGNAL = "INTERVIEW_COMPLETE";
+const FREE_PLAN_MESSAGE_LIMIT = 1;
+
+const UpgradePrompt = ({ onStartNew }: { onStartNew?: () => void }) => (
+    <Card className="mt-4 border-primary/50">
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Unlock Your Full Potential</CardTitle>
+            <CardDescription>
+                You've answered your free question. Upgrade to Pro to continue the interview and get your full performance report.
+            </CardDescription>
+        </CardHeader>
+        <CardFooter className="gap-4">
+            <Button asChild>
+                <Link href="/pricing">Upgrade to Pro</Link>
+            </Button>
+            {onStartNew && <Button variant="outline" onClick={onStartNew}>
+                Start New Interview
+            </Button>}
+        </CardFooter>
+    </Card>
+);
 
 export default function AiInterviewerPage() {
   const [isPending, startTransition] = useTransition();
@@ -39,8 +61,14 @@ export default function AiInterviewerPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [report, setReport] = useState("");
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { user, profile, updateLastActivity, refreshProfile } = useAuth();
+  
+  useEffect(() => {
+    updateLastActivity('/ai-interviewer');
+  }, [updateLastActivity]);
 
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
@@ -122,6 +150,17 @@ export default function AiInterviewerPage() {
       playAudio(lastMessage.audioUrl);
     }
   }, [messages]);
+  
+  const resetInterview = () => {
+    setInterviewStarted(false);
+    setInterviewFinished(false);
+    setMessages([]);
+    setReport("");
+    setInput("");
+    setShowUpgradePrompt(false);
+    setJobDescription("");
+    refreshProfile();
+  }
 
   const handleStartInterview = () => {
     if (!jobDescription.trim()) {
@@ -133,15 +172,17 @@ export default function AiInterviewerPage() {
       return;
     }
     setInterviewStarted(true);
+    setInterviewFinished(false);
     setMessages([]);
     setReport("");
-    setInterviewFinished(false);
+    setInput("");
+    setShowUpgradePrompt(false);
     
     startTransition(async () => {
         try {
             const res = await conductInterview({
                 jobDescription,
-                history: []
+                history: [],
             });
             const audioRes = await textToSpeech(res.response);
             const assistantMessage: Message = { role: "assistant", content: res.response, audioUrl: audioRes.media };
@@ -160,12 +201,16 @@ export default function AiInterviewerPage() {
   const handleSubmitMessage = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!input.trim() || isPending) return;
-
+    
     const userMessage: Message = { role: "user", content: input };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
-    const currentInput = input;
     setInput("");
+
+    if (profile?.plan === 'free' && newMessages.filter(m => m.role === 'user').length >= FREE_PLAN_MESSAGE_LIMIT) {
+        setShowUpgradePrompt(true);
+        return;
+    }
 
     startTransition(async () => {
       try {
@@ -222,16 +267,39 @@ export default function AiInterviewerPage() {
     });
   }
 
-  return (
-    <div className="p-4 md:p-8 flex flex-col gap-8">
-      <header>
-        <h1 className="font-headline text-4xl font-bold tracking-tight">AI Mock Interviewer</h1>
-        <p className="mt-2 text-muted-foreground">
-          Practice your interview skills against an AI tailored to a specific job.
-        </p>
-      </header>
+  const renderContent = () => {
+    if (profile?.plan === 'pro') {
+        // Allow pro users to access the feature without restriction
+    } else if (showUpgradePrompt) {
+        // This state is now handled inside the main interview card view
+    }
 
-      {!interviewStarted ? (
+    if (!interviewStarted) {
+        if (profile?.plan === 'free') {
+            return (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Lock className="text-primary"/> Pro Feature Preview</CardTitle>
+                        <CardDescription>As a free user, you can answer one question to try out the AI Interviewer. Upgrade to Pro for unlimited interviews and full feedback reports.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Textarea
+                        placeholder="Paste job description here to start your free preview..."
+                        className="h-64"
+                        value={jobDescription}
+                        onChange={(e) => setJobDescription(e.target.value)}
+                        />
+                    </CardContent>
+                    <CardFooter>
+                        <Button onClick={handleStartInterview} disabled={isPending || !jobDescription.trim()}>
+                        {isPending ? <Loader2 className="mr-2 animate-spin" /> : <ClipboardList className="mr-2" />}
+                        Start Interview Preview
+                        </Button>
+                    </CardFooter>
+                </Card>
+            )
+        }
+      return (
         <Card>
           <CardHeader>
             <CardTitle>Job Description</CardTitle>
@@ -246,13 +314,16 @@ export default function AiInterviewerPage() {
             />
           </CardContent>
           <CardFooter>
-            <Button onClick={handleStartInterview} disabled={isPending}>
+            <Button onClick={handleStartInterview} disabled={isPending || !jobDescription.trim()}>
               {isPending ? <Loader2 className="mr-2 animate-spin" /> : <ClipboardList className="mr-2" />}
               Start Interview
             </Button>
           </CardFooter>
         </Card>
-      ) : (
+      );
+    }
+    
+    return (
         <Card className="flex flex-col h-[70vh]">
           <CardHeader>
             <CardTitle>Interview in Progress</CardTitle>
@@ -274,7 +345,7 @@ export default function AiInterviewerPage() {
                   )}
                 </div>
               ))}
-              {isPending && messages[messages.length-1]?.role === 'user' && (
+              {isPending && messages[messages.length-1]?.role === 'user' && !showUpgradePrompt && (
                   <div className="flex items-start gap-3 justify-start">
                       <Avatar className="h-8 w-8 border-2 border-primary"><AvatarFallback className="bg-primary text-primary-foreground"><BrainCircuit className="h-5 w-5"/></AvatarFallback></Avatar>
                       <div className="max-w-xs rounded-lg p-3 bg-muted flex items-center">
@@ -282,47 +353,57 @@ export default function AiInterviewerPage() {
                       </div>
                   </div>
               )}
+               {showUpgradePrompt && <UpgradePrompt onStartNew={resetInterview} />}
             </CardContent>
           </ScrollArea>
           
-          {!interviewFinished ? (
-            <CardFooter className="p-4 border-t">
-              <form onSubmit={handleSubmitMessage} className="flex items-center gap-2 w-full">
-                <Input
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={isRecording ? "Listening..." : "Your answer..."}
-                  disabled={isPending}
-                  className="flex-1"
-                  autoComplete="off"
-                />
-                <Button type="submit" disabled={isPending || !input.trim()} size="icon">
-                  <Send className="h-4 w-4" />
-                </Button>
-                {!isRecording ? (
-                  <Button type="button" onClick={handleStartRecording} disabled={isPending} size="icon">
-                    <Mic className="h-4 w-4" />
+          <CardFooter className="p-4 border-t">
+            {!interviewFinished && !showUpgradePrompt ? (
+                <form onSubmit={handleSubmitMessage} className="flex items-center gap-2 w-full">
+                  <Input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={isRecording ? "Listening..." : "Your answer..."}
+                    disabled={isPending}
+                    className="flex-1"
+                    autoComplete="off"
+                  />
+                  <Button type="submit" disabled={isPending || !input.trim()} size="icon">
+                    <Send className="h-4 w-4" />
                   </Button>
-                ) : (
-                  <Button type="button" onClick={handleStopRecording} disabled={isPending} size="icon" variant="destructive">
-                    <Square className="h-4 w-4" />
+                  {!isRecording ? (
+                    <Button type="button" onClick={handleStartRecording} disabled={isPending} size="icon">
+                      <Mic className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button type="button" onClick={handleStopRecording} disabled={isPending} size="icon" variant="destructive">
+                      <Square className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={handleEndInterview} disabled={isPending} type="button">
+                      End Interview
                   </Button>
-                )}
-                <Button variant="destructive" onClick={handleEndInterview} disabled={isPending} type="button">
-                    {isPending ? <Loader2 className="mr-2 animate-spin" /> : <Square className="mr-2" />}
-                    End Interview
-                </Button>
-              </form>
-            </CardFooter>
-          ) : (
-            <CardFooter className="p-4 border-t">
-                 <Button onClick={() => setInterviewStarted(false)}>
-                    Start New Interview
-                </Button>
-            </CardFooter>
-          )}
+                </form>
+            ) : (
+                  <Button onClick={resetInterview}>
+                      Start New Interview
+                  </Button>
+            )}
+          </CardFooter>
         </Card>
-      )}
+    )
+  }
+
+  return (
+    <div className="p-4 md:p-8 flex flex-col gap-8">
+      <header>
+        <h1 className="font-headline text-4xl font-bold tracking-tight">AI Mock Interviewer</h1>
+        <p className="mt-2 text-muted-foreground">
+          Practice your interview skills against an AI tailored to a specific job.
+        </p>
+      </header>
+
+      {renderContent()}
 
       {interviewFinished && report && (
         <Card>
@@ -338,5 +419,3 @@ export default function AiInterviewerPage() {
     </div>
   );
 }
-
-    

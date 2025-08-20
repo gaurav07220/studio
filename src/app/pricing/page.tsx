@@ -1,6 +1,8 @@
+
 "use client";
 
-import { Check } from "lucide-react";
+import { useState, useTransition } from "react";
+import { Check, Star, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,51 +13,68 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 
 const tiers = [
   {
     name: "Free",
-    price: "$0",
-    description: "For individuals getting started.",
+    planId: "free",
+    price: "Free",
+    description: "Essential tools to get you started on your career path.",
     features: [
-      "Basic Resume Analysis",
-      "10 Job Matches per month",
-      "Limited AI Coach access",
+      "Resume Analysis & Feedback",
+      "Job Description Matcher",
+      "AI Interview Practice (1 Question)",
+      "Upskilling Recommendations",
+      "Job Market Insights",
     ],
-    cta: "Get Started",
     popular: false,
   },
   {
     name: "Pro",
-    price: "$15",
-    description: "For professionals serious about their career.",
+    planId: "pro",
+    price: "$10 / mo",
+    description: "Unlock your full potential with advanced AI tools and unlimited access.",
     features: [
-      "Advanced Resume Analysis & ATS Score",
-      "Unlimited Job Matches",
-      "Unlimited AI Coach access",
-      "Upskilling Recommendations",
-      "Network Connector",
+      "All features in the Free plan",
+      "Full AI Interview with Feedback",
+      "AI Cover Letter Generation",
+      "Advanced Resume Analytics",
+      "Priority Support",
     ],
-    cta: "Upgrade to Pro",
     popular: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Contact Us",
-    description: "For teams and organizations.",
-    features: [
-      "All Pro features",
-      "Team management",
-      "Custom branding",
-      "Dedicated support",
-      "Usage analytics",
-    ],
-    cta: "Contact Sales",
-    popular: false,
   },
 ];
 
 export default function PricingPage() {
+    const { profile, updateProfile, refreshProfile } = useAuth();
+    const [isPending, startTransition] = useTransition();
+    const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+    const { toast } = useToast();
+
+    const handlePlanChange = (planId: 'free' | 'pro') => {
+        setLoadingPlan(planId);
+        startTransition(async () => {
+            try {
+                await updateProfile({ plan: planId });
+                await refreshProfile(); // Refresh profile to get the latest state
+                toast({
+                    title: "Plan Changed!",
+                    description: `You are now on the ${planId === 'pro' ? 'Pro' : 'Free'} plan.`,
+                });
+            } catch (error) {
+                 toast({
+                    variant: "destructive",
+                    title: "Update Failed",
+                    description: "Could not update your plan. Please try again.",
+                });
+            } finally {
+                setLoadingPlan(null);
+            }
+        });
+    }
+
   return (
     <div className="p-4 md:p-8 flex flex-col gap-8">
       <header className="text-center">
@@ -63,43 +82,64 @@ export default function PricingPage() {
           Find the Plan That's Right for You
         </h1>
         <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
-          Unlock your full career potential with CareerAI. Choose a plan that fits your needs and goals.
+          Start for free, and upgrade to Pro when you're ready to accelerate your job search.
         </p>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start max-w-5xl mx-auto">
-        {tiers.map((tier) => (
-          <Card
-            key={tier.name}
-            className={cn(
-              "flex flex-col h-full",
-              tier.popular ? "border-primary border-2 shadow-xl" : ""
-            )}
-          >
-            <CardHeader>
-              <CardTitle>{tier.name}</CardTitle>
-              <CardDescription>{tier.description}</CardDescription>
-              <div className="text-4xl font-bold pt-4">{tier.price}</div>
-              <p className="text-sm text-muted-foreground">{tier.price.startsWith('$') && tier.name !== 'Free' ? '/ month' : ' '}</p>
-            </CardHeader>
-            <CardContent className="flex-1">
-              <ul className="space-y-3">
-                {tier.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" variant={tier.popular ? "default" : "outline"}>
-                {tier.cta}
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch max-w-4xl mx-auto">
+        {tiers.map((tier) => {
+            const isCurrentPlan = profile?.plan === tier.planId;
+            const isLoading = loadingPlan === tier.planId;
+
+            return (
+              <Card
+                key={tier.name}
+                className={cn(
+                  "flex flex-col h-full",
+                  tier.popular ? "border-primary border-2 shadow-xl relative" : ""
+                )}
+              >
+                {tier.popular && (
+                    <div className="absolute top-0 -translate-y-1/2 w-full flex justify-center">
+                        <div className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
+                            <Star className="w-4 h-4" /> Most Popular
+                        </div>
+                    </div>
+                )}
+                <CardHeader className="pt-8">
+                  <CardTitle>{tier.name}</CardTitle>
+                  <CardDescription>{tier.description}</CardDescription>
+                  <div className="text-4xl font-bold pt-4">{tier.price}</div>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <ul className="space-y-3">
+                    {tier.features.map((feature) => (
+                      <li key={feature} className="flex items-center gap-2">
+                        <Check className="w-5 h-5 text-green-500" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                    <Button 
+                        className="w-full"
+                        disabled={isLoading || isCurrentPlan}
+                        onClick={() => handlePlanChange(tier.planId as 'free' | 'pro')}
+                    >
+                        {isLoading && <Loader2 className="animate-spin mr-2" />}
+                        {isCurrentPlan ? "Your Current Plan" : tier.name === 'Pro' ? 'Upgrade to Pro' : 'Downgrade to Free'}
+                    </Button>
+                </CardFooter>
+              </Card>
+            )
+        })}
       </div>
+       <p className="text-xs text-muted-foreground text-center">
+        Note: This is a demo environment. Plan changes are simulated and do not involve real payments.
+      </p>
     </div>
   );
 }
+
+    

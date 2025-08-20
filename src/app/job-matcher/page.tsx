@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function JobMatcherPage() {
   const [isPending, startTransition] = useTransition();
@@ -25,6 +26,12 @@ export default function JobMatcherPage() {
   const [result, setResult] = useState<JobDescriptionMatcherOutput | null>(null);
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const { updateLastActivity } = useAuth();
+
+  useEffect(() => {
+    updateLastActivity('/job-matcher');
+  }, [updateLastActivity]);
+
 
   useEffect(() => {
     const resumeDataUri = searchParams.get('resume');

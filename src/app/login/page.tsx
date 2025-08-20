@@ -2,8 +2,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,27 +18,30 @@ import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { signIn } = useAuth();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      setLoading(false);
-      toast({ title: "Login successful!", description: `Welcome back, ${userCredential.user.email}` });
-      setEmail("");
-      setPassword("");
-      router.push("/resume-analyzer");
-    } catch (error: any) {
-      setLoading(false);
-      toast({ title: "Login failed", description: error.message });
+      await signIn(email, password);
+      router.push("/");
+    } catch (error) {
+        toast({
+            variant: "destructive",
+            title: "Login Failed",
+            description: error instanceof Error ? error.message : "An unknown error occurred.",
+        });
+    } finally {
+        setLoading(false);
     }
   };
 

@@ -12,9 +12,10 @@ import {
   User,
   DollarSign,
   LogOut,
-  ClipboardList,
+  LogIn,
+  Sparkles,
 } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CareerCoachWidget } from "@/components/career-coach-widget";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
@@ -22,30 +23,38 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
+import { Badge } from "./ui/badge";
 
 const mainNavItems = [
-  { href: "/resume-analyzer", label: "Resume Analyzer" },
-  { href: "/job-matcher", label: "Job Matcher" },
-  { href: "/ai-interviewer", label: "AI Interviewer" },
-  { href: "/network-connector", label: "Network Connector" },
-  { href: "/upskilling-recommender", label: "Upskilling" },
-  { href: "/job-market", label: "Job Market" },
+  { href: "/resume-analyzer", label: "Resume Analyzer", pro: false },
+  { href: "/job-matcher", label: "Job Matcher", pro: false },
+  { href: "/ai-interviewer", label: "AI Interviewer", pro: true },
+  { href: "/job-market", label: "Job Market", pro: false },
 ];
+
+const moreNavItems = [
+  { href: "/cover-letter-generator", label: "Cover Letter", pro: true },
+  { href: "/upskilling-recommender", label: "Upskilling", pro: false },
+]
 
 const userMenuItems = [
     { href: "/profile", label: "Profile", icon: User },
     { href: "/settings", label: "Settings", icon: Settings },
     { href: "/pricing", label: "Pricing", icon: DollarSign },
-    { href: "#", label: "Help & Support", icon: HelpCircle },
+];
+
+const helpMenuItems = [
+     { href: "#", label: "Help & Support", icon: HelpCircle },
 ]
 
-const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+const NavLink = ({ href, children, pro }: { href: string; children: React.ReactNode, pro: boolean }) => {
     const pathname = usePathname();
     const isActive = pathname === href;
 
@@ -53,22 +62,28 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
         <Link
             href={href}
             className={cn(
-                "transition-colors text-foreground/60 hover:text-foreground/80",
+                "transition-colors text-foreground/60 hover:text-foreground/80 flex items-center gap-2",
                 isActive && "text-primary font-medium"
             )}
         >
             {children}
+            {pro && <Badge variant="secondary" className="text-primary border-primary/50 px-1.5 py-0 text-xs leading-none">PRO</Badge>}
         </Link>
     );
 };
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [openMobileMenu, setOpenMobileMenu] = React.useState(false);
-  const { user, loading, signOut } = useAuth();
+  const { user, profile, loading, signOut } = useAuth();
+  const pathname = usePathname();
+
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
+
+  if (isAuthPage) {
+    return <main className="flex-1">{children}</main>
+  }
 
   const handleSignOut = () => {
-      // For demonstration, we'll just log out. 
-      // In a real app, you might redirect to a login page.
       signOut();
   }
 
@@ -90,13 +105,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <SheetContent side="left">
                 <nav className="grid gap-6 text-lg font-medium">
                   <Link
-                    href="#"
+                    href="/"
                     className="flex items-center gap-2 text-lg font-semibold mb-4"
                   >
                     <BrainCircuit className="h-6 w-6 text-primary" />
                     <span>CareerAI</span>
                   </Link>
-                  {[...mainNavItems, ...userMenuItems].map((item) => (
+                  {[...mainNavItems, ...moreNavItems].map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="text-muted-foreground hover:text-foreground flex items-center gap-2"
+                      onClick={() => setOpenMobileMenu(false)}
+                    >
+                      {item.label}
+                      {item.pro && <Badge variant="secondary" className="text-primary border-primary/50 px-1.5 py-0 text-xs leading-none">PRO</Badge>}
+                    </Link>
+                  ))}
+                  <DropdownMenuSeparator />
+                   {userMenuItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
@@ -122,58 +149,79 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <nav className="hidden flex-1 justify-center md:flex">
             <div className="flex items-center gap-5 text-sm lg:gap-6">
                 {mainNavItems.map((item) => (
-                    <NavLink key={item.href} href={item.href}>
+                    <NavLink key={item.href} href={item.href} pro={item.pro}>
                         {item.label}
                     </NavLink>
                 ))}
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="text-foreground/60 focus:bg-transparent focus:text-primary">More</Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        {moreNavItems.map((item) => (
+                             <DropdownMenuItem key={item.href} asChild>
+                                <Link href={item.href} className="flex items-center justify-between w-full">
+                                    {item.label}
+                                    {item.pro && <Badge variant="secondary" className="text-primary border-primary/50 px-1.5 py-0 text-xs leading-none ml-2">PRO</Badge>}
+                                </Link>
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         </nav>
         
         <div className="flex items-center gap-4">
-          {!loading && user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="rounded-full">
-                  <Avatar>
-                      <AvatarFallback>{user.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                  </Avatar>
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {userMenuItems.map(item => (
-                    <DropdownMenuItem key={item.label} asChild>
-                       <Link href={item.href} className="flex items-center gap-2">
-                            <item.icon className="w-4 h-4"/>
-                            <span>{item.label}</span>
-                       </Link>
-                    </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
-                    <div className="flex items-center gap-2">
-                        <LogOut className="w-4 h-4"/>
-                        <span>Logout</span>
+            {loading ? (
+                <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+            ) : user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                       <AvatarImage src={profile?.photoURL} data-ai-hint="user avatar" />
+                       <AvatarFallback>{user.email?.[0]?.toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">Signed In As</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
                     </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : !loading && (
-            <div className="flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/login">Log In</Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link href="/signup">Sign Up</Link>
-              </Button>
-            </div>
-          )}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    {userMenuItems.map((item) => (
+                        <DropdownMenuItem key={item.href} asChild>
+                            <Link href={item.href}>
+                                <item.icon className="mr-2 h-4 w-4"/>
+                                {item.label}
+                            </Link>
+                        </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+                <Button asChild>
+                    <Link href="/login">
+                        Login <LogIn className="ml-2"/>
+                    </Link>
+                </Button>
+            )}
         </div>
       </header>
       <main className="flex flex-1 flex-col">{children}</main>
-      {user && <CareerCoachWidget />}
+      <CareerCoachWidget />
     </div>
   );
 }
