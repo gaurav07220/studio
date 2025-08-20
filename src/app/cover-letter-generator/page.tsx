@@ -18,13 +18,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
+const UpgradePrompt = () => (
+    <Card className="mt-4 border-primary/50">
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Unlock Unlimited Cover Letters</CardTitle>
+            <CardDescription>
+                You've used your free cover letter generation. Upgrade to Pro to create unlimited, personalized cover letters for every job application.
+            </CardDescription>
+        </CardHeader>
+        <CardFooter className="gap-4">
+            <Button asChild>
+                <Link href="/pricing">Upgrade to Pro</Link>
+            </Button>
+        </CardFooter>
+    </Card>
+);
+
 export default function CoverLetterGeneratorPage() {
   const [isPending, startTransition] = useTransition();
   const [resumeText, setResumeText] = useState("");
   const [jobDescriptionText, setJobDescriptionText] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const { toast } = useToast();
-  const { profile, updateLastActivity } = useAuth();
+  const { profile, updateLastActivity, refreshProfile } = useAuth();
 
   useEffect(() => {
     updateLastActivity('/cover-letter-generator');
@@ -48,6 +64,7 @@ export default function CoverLetterGeneratorPage() {
           jobDescriptionText,
         });
         setResult(res.coverLetter);
+        await refreshProfile(); // Refresh profile to get updated usage count
       } catch (error) {
         toast({
           variant: "destructive",
@@ -74,20 +91,11 @@ export default function CoverLetterGeneratorPage() {
   };
 
   const renderContent = () => {
-    if (profile?.plan === 'free') {
-        return (
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Lock className="text-primary"/> Pro Feature</CardTitle>
-                    <CardDescription>The Cover Letter Generator is a Pro feature. Upgrade your plan to create personalized cover letters in seconds.</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                     <Button asChild>
-                        <Link href="/pricing">Upgrade to Pro</Link>
-                    </Button>
-                </CardFooter>
-            </Card>
-        )
+    const isFreeUser = profile?.plan === 'free';
+    const hasUsedFreeCredit = (profile?.coverLettersGenerated ?? 0) >= 1;
+
+    if (isFreeUser && hasUsedFreeCredit) {
+        return <UpgradePrompt />;
     }
 
     return (
@@ -192,11 +200,10 @@ export default function CoverLetterGeneratorPage() {
         </h1>
         <p className="mt-2 text-muted-foreground">
           Create a personalized cover letter in seconds based on your resume and a job description.
+          {profile?.plan === 'free' && ' Free users can generate one cover letter.'}
         </p>
       </header>
        {renderContent()}
     </div>
   );
 }
-
-    
