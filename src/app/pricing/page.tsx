@@ -25,7 +25,7 @@ const tiers = [
     features: [
       "Resume Analysis & Feedback",
       "Job Description Matcher",
-      "AI Interview Practice (2 Questions)",
+      "AI Interview Practice (1 Question)",
       "Upskilling Recommendations",
       "Job Market Insights",
     ],
@@ -50,9 +50,11 @@ const tiers = [
 export default function PricingPage() {
     const { profile, updateProfile, refreshProfile } = useAuth();
     const [isPending, startTransition] = useTransition();
+    const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
     const { toast } = useToast();
 
     const handlePlanChange = (planId: 'free' | 'pro') => {
+        setLoadingPlan(planId);
         startTransition(async () => {
             try {
                 await updateProfile({ plan: planId });
@@ -67,6 +69,8 @@ export default function PricingPage() {
                     title: "Update Failed",
                     description: "Could not update your plan. Please try again.",
                 });
+            } finally {
+                setLoadingPlan(null);
             }
         });
     }
@@ -85,6 +89,8 @@ export default function PricingPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch max-w-4xl mx-auto">
         {tiers.map((tier) => {
             const isCurrentPlan = profile?.plan === tier.planId;
+            const isLoading = loadingPlan === tier.planId;
+
             return (
               <Card
                 key={tier.name}
@@ -118,10 +124,10 @@ export default function PricingPage() {
                 <CardFooter>
                     <Button 
                         className="w-full"
-                        disabled={isPending || isCurrentPlan}
+                        disabled={isLoading || isCurrentPlan}
                         onClick={() => handlePlanChange(tier.planId as 'free' | 'pro')}
                     >
-                        {isPending && <Loader2 className="animate-spin mr-2" />}
+                        {isLoading && <Loader2 className="animate-spin mr-2" />}
                         {isCurrentPlan ? "Your Current Plan" : tier.name === 'Pro' ? 'Upgrade to Pro' : 'Downgrade to Free'}
                     </Button>
                 </CardFooter>
