@@ -37,19 +37,19 @@ export default function ProfilePage() {
     useEffect(() => {
         if (profile) {
             setFormData({
-                name: profile.name || '',
+                name: profile.name || user?.displayName || '',
                 headline: profile.headline || '',
                 summary: profile.summary || '',
                 linkedin: profile.linkedin || '',
                 portfolio: profile.portfolio || '',
-                photoURL: profile.photoURL || '',
+                photoURL: profile.photoURL || user?.photoURL || '',
             });
         }
-    }, [profile]);
+    }, [profile, user]);
     
     if (loading || !user) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
+            <div className="flex items-center justify-center min-h-[calc(100vh-4rem)]">
                 <Loader2 className="h-12 w-12 animate-spin" />
             </div>
         )
@@ -66,7 +66,7 @@ export default function ProfilePage() {
             await updateProfile(formData);
             toast({ title: "Profile Updated", description: "Your changes have been saved successfully." });
         } catch (error) {
-            toast({ variant: "destructive", title: "Error", description: "Failed to update profile." });
+            toast({ variant: "destructive", title: "Error", description: error instanceof Error ? error.message : "Failed to update profile." });
         } finally {
             setIsSaving(false);
         }
@@ -78,7 +78,6 @@ export default function ProfilePage() {
             setIsUploading(true);
             try {
                 const photoURL = await uploadProfilePicture(file, (progress) => {
-                    // You can use this progress callback to show an upload indicator
                     console.log('Upload is ' + progress + '% done');
                 });
                 setFormData(prev => ({ ...prev, photoURL }));

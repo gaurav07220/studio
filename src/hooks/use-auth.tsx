@@ -15,6 +15,10 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
+  updatePassword as firebaseUpdatePassword,
+  deleteUser as firebaseDeleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
 } from "firebase/auth";
 import { auth, db, storage } from "@/lib/firebase";
 import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from "firebase/firestore";
@@ -33,6 +37,11 @@ export interface UserProfile {
     portfolio?: string;
     photoURL?: string;
     plan?: 'free' | 'pro';
+    theme?: 'light' | 'dark' | 'system';
+    notifications?: {
+        email: boolean;
+        push: boolean;
+    };
     lastActivity?: {
         page: string;
         timestamp: Timestamp;
@@ -46,6 +55,9 @@ interface AuthContextType {
   signUp: (email: string, pass: string) => Promise<any>;
   signIn: (email: string, pass: string) => Promise<any>;
   signOut: () => Promise<void>;
+  reauthenticate: (password: string) => Promise<void>;
+  updatePassword: (currentPass: string, newPass: string) => Promise<void>;
+  deleteAccount: () => Promise<void>;
   updateProfile: (profileData: Partial<UserProfile>) => Promise<void>;
   uploadProfilePicture: (file: File, onProgress: (progress: number) => void) => Promise<string>;
   updateLastActivity: (page: string) => Promise<void>;
@@ -53,6 +65,18 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const applyTheme = (theme?: 'light' | 'dark' | 'system') => {
+    if (typeof window === 'undefined') return;
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
+
+    let newTheme = theme;
+    if (!newTheme || newTheme === 'system') {
+        newTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    root.classList.add(newTheme);
+};
 
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -67,10 +91,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const now = new Date();
     const lastActivityDate = profileData.lastActivity?.timestamp?.toDate();
 
-    // Welcome back message
     if (lastActivityDate) {
         const hoursDiff = (now.getTime() - lastActivityDate.getTime()) / (1000 * 60 * 60);
-        // If last activity was between 10 mins and 24 hours ago
         if (hoursDiff > 0.16 && hoursDiff < 24) {
             toast({
                 title: "Welcome back!",
@@ -84,9 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     }
     
-    // Profile completion message
     if (!profileData.headline || !profileData.summary) {
-        // Add a delay to avoid showing both toasts at once
         setTimeout(() => {
              toast({
                 title: "Complete Your Profile",
@@ -108,6 +128,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (userDoc.exists()) {
         const profileData = userDoc.data() as UserProfile;
         setProfile(profileData);
+        applyTheme(profileData.theme);
         return profileData;
     }
     return null;
@@ -124,26 +145,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(user);
         if (user) {
             const profileData = await fetchProfile(user);
-            if (profileData) {
-                handleWelcomeMessages(profileData);
-            } else {
+            if (!profileData) {
                  const defaultProfile: UserProfile = { 
                     name: user.email?.split('@')[0] || 'User',
                     photoURL: user.photoURL || '',
                     plan: 'free',
+                    theme: 'system',
+                    notifications: { email: true, push: false },
                  };
                  await setDoc(doc(db, "users", user.uid), defaultProfile);
                  setProfile(defaultProfile);
-                 handleWelcomeMessages(defaultProfile);
+                 applyTheme(defaultProfile.theme);
             }
         } else {
             setProfile(null);
+            applyTheme('system'); // Reset to system theme on sign out
         }
         setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [handleWelcomeMessages, fetchProfile]);
+  }, [fetchProfile]);
+  
+  useEffect(() => {
+    if (profile?.theme) {
+        applyTheme(profile.theme);
+    }
+  }, [profile?.theme]);
 
 
   const signUp = async (email: string, pass: string) => {
@@ -153,6 +181,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           name: cred.user.email?.split('@')[0] || 'User',
           photoURL: cred.user.photoURL || '',
           plan: 'free',
+          theme: 'system',
+          notifications: { email: true, push: false },
       };
       await setDoc(userDocRef, defaultProfile);
       setProfile(defaultProfile);
@@ -160,7 +190,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const signIn = async (email: string, pass: string) => {
-      return signInWithEmailAndPassword(auth, email, pass);
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      const profileData = await fetchProfile(cred.user);
+      if (profileData) {
+        handleWelcomeMessages(profileData);
+      }
+      return cred;
   }
 
   const signOut = async () => {
@@ -173,6 +208,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await setDoc(userDocRef, profileData, { merge: true });
     setProfile(prev => ({...(prev || {}), ...profileData} as UserProfile));
   }
+  
+  const reauthenticate = async (password: string) => {
+      if (!user || !user.email) throw new Error("User not found.");
+      const credential = EmailAuthProvider.credential(user.email, password);
+      await reauthenticateWithCredential(user, credential);
+  };
+
+  const updatePassword = async (currentPass: string, newPass: string) => {
+      if (!user) throw new Error("Not authenticated.");
+      await reauthenticate(currentPass);
+      await firebaseUpdatePassword(user, newPass);
+  }
+
+  const deleteAccount = async () => {
+      if (!user) throw new Error("Not authenticated.");
+      await firebaseDeleteUser(user);
+  };
 
   const uploadProfilePicture = (file: File, onProgress: (progress: number) => void): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -208,7 +260,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, updateProfile, uploadProfilePicture, updateLastActivity, refreshProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, reauthenticate, updatePassword, deleteAccount, updateProfile, uploadProfilePicture, updateLastActivity, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
