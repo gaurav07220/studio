@@ -32,14 +32,14 @@ interface Message {
 }
 
 const INTERVIEW_COMPLETE_SIGNAL = "INTERVIEW_COMPLETE";
-const FREE_PLAN_MESSAGE_LIMIT = 2;
+const FREE_PLAN_MESSAGE_LIMIT = 1;
 
 const UpgradePrompt = ({ onStartNew }: { onStartNew?: () => void }) => (
     <Card className="mt-4 border-primary/50">
         <CardHeader>
             <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Unlock Your Full Potential</CardTitle>
             <CardDescription>
-                You've answered your free questions. Upgrade to Pro to continue the interview and get your full performance report.
+                You've answered your free question. Upgrade to Pro to continue the interview and get your full performance report.
             </CardDescription>
         </CardHeader>
         <CardFooter className="gap-4">
@@ -268,23 +268,37 @@ export default function AiInterviewerPage() {
   }
 
   const renderContent = () => {
-    if (profile?.plan === 'free') {
-        return (
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Lock className="text-primary"/> Pro Feature</CardTitle>
-                    <CardDescription>The AI Interviewer is a Pro feature. Upgrade your plan to practice for your next interview.</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                     <Button asChild>
-                        <Link href="/pricing">Upgrade to Pro</Link>
-                    </Button>
-                </CardFooter>
-            </Card>
-        )
+    if (profile?.plan === 'pro') {
+        // Allow pro users to access the feature without restriction
+    } else if (showUpgradePrompt) {
+        // This state is now handled inside the main interview card view
     }
 
     if (!interviewStarted) {
+        if (profile?.plan === 'free') {
+            return (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Lock className="text-primary"/> Pro Feature Preview</CardTitle>
+                        <CardDescription>As a free user, you can answer one question to try out the AI Interviewer. Upgrade to Pro for unlimited interviews and full feedback reports.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Textarea
+                        placeholder="Paste job description here to start your free preview..."
+                        className="h-64"
+                        value={jobDescription}
+                        onChange={(e) => setJobDescription(e.target.value)}
+                        />
+                    </CardContent>
+                    <CardFooter>
+                        <Button onClick={handleStartInterview} disabled={isPending || !jobDescription.trim()}>
+                        {isPending ? <Loader2 className="mr-2 animate-spin" /> : <ClipboardList className="mr-2" />}
+                        Start Interview Preview
+                        </Button>
+                    </CardFooter>
+                </Card>
+            )
+        }
       return (
         <Card>
           <CardHeader>
@@ -405,5 +419,3 @@ export default function AiInterviewerPage() {
     </div>
   );
 }
-
-    
