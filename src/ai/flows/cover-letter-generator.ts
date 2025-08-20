@@ -11,9 +11,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { getFirebaseUid } from '@genkit-ai/next';
-import { doc, setDoc, increment } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 
 const CoverLetterGeneratorInputSchema = z.object({
   resumeText: z.string().describe('The full text of the user\'s resume.'),
@@ -61,17 +58,8 @@ const generateCoverLetterFlow = ai.defineFlow(
     name: 'generateCoverLetterFlow',
     inputSchema: CoverLetterGeneratorInputSchema,
     outputSchema: CoverLetterGeneratorOutputSchema,
-    auth: {
-      required: true,
-    }
   },
-  async (input, context) => {
-    const uid = getFirebaseUid(context);
-    if (uid) {
-        const userDocRef = doc(db, 'users', uid);
-        await setDoc(userDocRef, { coverLettersGenerated: increment(1) }, { merge: true });
-    }
-    
+  async (input) => {
     const {output} = await prompt(input);
     return output!;
   }

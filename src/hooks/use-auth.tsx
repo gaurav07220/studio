@@ -37,7 +37,6 @@ export interface UserProfile {
         page: string;
         timestamp: Timestamp;
     };
-    coverLettersGenerated?: number;
 }
 
 interface AuthContextType {

@@ -1,9 +1,8 @@
 
 "use client";
 
-import { useState, useTransition, useEffect, useCallback } from "react";
-import Link from 'next/link';
-import { PenSquare, Loader2, Clipboard, Send, Sparkles, Lock } from "lucide-react";
+import { useState, useTransition, useEffect } from "react";
+import { PenSquare, Loader2, Clipboard, Send } from "lucide-react";
 import { generateCoverLetter } from "@/ai/flows/cover-letter-generator";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,21 +17,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 
-const UpgradePrompt = () => (
-    <Card className="mt-4 border-primary/50">
-        <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Unlock Unlimited Cover Letters</CardTitle>
-            <CardDescription>
-                You've used your free cover letter generation. Upgrade to Pro to create unlimited, personalized cover letters for every job application.
-            </CardDescription>
-        </CardHeader>
-        <CardFooter className="gap-4">
-            <Button asChild>
-                <Link href="/pricing">Upgrade to Pro</Link>
-            </Button>
-        </CardFooter>
-    </Card>
-);
 
 export default function CoverLetterGeneratorPage() {
   const [isPending, startTransition] = useTransition();
@@ -40,7 +24,7 @@ export default function CoverLetterGeneratorPage() {
   const [jobDescriptionText, setJobDescriptionText] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const { toast } = useToast();
-  const { profile, updateLastActivity, refreshProfile } = useAuth();
+  const { updateLastActivity } = useAuth();
 
   useEffect(() => {
     updateLastActivity('/cover-letter-generator');
@@ -64,7 +48,6 @@ export default function CoverLetterGeneratorPage() {
           jobDescriptionText,
         });
         setResult(res.coverLetter);
-        await refreshProfile(); // Refresh profile to get updated usage count
       } catch (error) {
         toast({
           variant: "destructive",
@@ -90,16 +73,18 @@ export default function CoverLetterGeneratorPage() {
     });
   };
 
-  const renderContent = () => {
-    const isFreeUser = profile?.plan === 'free';
-    const hasUsedFreeCredit = (profile?.coverLettersGenerated ?? 0) >= 1;
-
-    if (isFreeUser && hasUsedFreeCredit) {
-        return <UpgradePrompt />;
-    }
-
-    return (
-        <>
+  return (
+    <div className="p-4 md:p-8 flex flex-col gap-8">
+      <header>
+        <h1 className="font-headline text-4xl font-bold tracking-tight">
+          AI Cover Letter Generator
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Create a personalized cover letter in seconds based on your resume and a job description.
+        </p>
+      </header>
+       
+       <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <Card>
                 <CardHeader>
@@ -189,21 +174,6 @@ export default function CoverLetterGeneratorPage() {
                 </Card>
             )}
         </>
-    )
-  }
-
-  return (
-    <div className="p-4 md:p-8 flex flex-col gap-8">
-      <header>
-        <h1 className="font-headline text-4xl font-bold tracking-tight">
-          AI Cover Letter Generator
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          Create a personalized cover letter in seconds based on your resume and a job description.
-          {profile?.plan === 'free' && ' Free users can generate one cover letter.'}
-        </p>
-      </header>
-       {renderContent()}
     </div>
   );
 }
