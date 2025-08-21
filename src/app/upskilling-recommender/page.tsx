@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Lightbulb, Loader2, ArrowRight, GraduationCap, School } from "lucide-react";
@@ -32,7 +33,7 @@ const createMarkup = (markdownText?: string) => {
     return { __html: "" };
   };
 
-export default function UpskillingRecommenderPage() {
+function UpskillingRecommenderPage() {
   const [isPending, startTransition] = useTransition();
   const [skillGaps, setSkillGaps] = useState("");
   const [careerGoals, setCareerGoals] = useState("");
@@ -226,5 +227,13 @@ export default function UpskillingRecommenderPage() {
       )}
 
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UpskillingRecommenderPage />
+    </Suspense>
   );
 }

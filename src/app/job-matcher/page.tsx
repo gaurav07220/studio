@@ -19,7 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/use-auth";
 
-export default function JobMatcherPage() {
+function JobMatcherPage() {
   const [isPending, startTransition] = useTransition();
   const [resumeText, setResumeText] = useState("");
   const [jobDescriptionText, setJobDescriptionText] = useState("");
@@ -209,5 +209,15 @@ export default function JobMatcherPage() {
       )}
 
     </div>
+  );
+}
+
+import { Suspense } from "react";
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <JobMatcherPage />
+    </Suspense>
   );
 }
